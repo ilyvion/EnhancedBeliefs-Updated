@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "XWKBE+gd+KffCXsVX3dGtExNVAQmAtZm39BpZJTgNJlTyxf6MY4O+2owZNIVwKB0osVQH9IhVyazhMTHb7wFiw==",
+  "success": true,
+  "projectFilePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\EnhancedBeliefs\\Source\\EnhancedBeliefs\\EnhancedBeliefs.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Artemy\\.nuget\\packages\\krafs.publicizer\\2.2.1\\krafs.publicizer.2.2.1.nupkg.sha512",
+    "C:\\Users\\Artemy\\.nuget\\packages\\krafs.rimworld.ref\\1.5.4061\\krafs.rimworld.ref.1.5.4061.nupkg.sha512",
+    "C:\\Users\\Artemy\\.nuget\\packages\\lib.harmony\\2.3.3\\lib.harmony.2.3.3.nupkg.sha512"
+  ],
+  "logs": []
+}

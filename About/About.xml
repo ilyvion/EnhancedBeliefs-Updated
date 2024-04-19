@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ModMetaData>
+	<name>Enhanced Beliefs</name>
+	<author>SmArtKar</author>
+	<supportedVersions>
+		<li>1.5</li>
+	</supportedVersions>
+	<packageId>smartkar.enhancedbeliefs</packageId>
+	<modDependencies>
+		<li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+		</li>
+
+	</modDependencies>
+	<loadAfter>
+		<li>brrainz.harmony</li>
+	</loadAfter>
+	<description>Ideology certainty will now depend on affirmation of pawn's beliefs and conduction of rituals they like or dislike, instead of being based purely on pawn's mood. Pawns will have opinions on other ideologies and may convert before losing their own certainty if there's a similar ideology that they like more than their own. Rebalanced to multiple precepts and changes to how differences between ideologies impact pawn relationships.</description>
+</ModMetaData>
