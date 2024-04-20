@@ -13,6 +13,7 @@ public static class EnhancedBeliefsDefOf
     public static MemeDef Supremacist;
     public static MemeDef Loyalist;
     public static MemeDef Guilty;
+    public static MentalStateDef IdeoChange;
 
     static EnhancedBeliefsDefOf()
     {

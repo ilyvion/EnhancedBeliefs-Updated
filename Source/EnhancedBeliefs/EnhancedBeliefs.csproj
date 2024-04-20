@@ -44,6 +44,9 @@
     <Compile Include="EnhancedBeliefsMod.cs" />
     <Compile Include="EnhancedBeliefs_WorldComp.cs" />
     <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="InteractionWorker_AdvancedConversionAttempt.cs" />
+    <Compile Include="InteractionWorker_IdeologicalDebatePrecept.cs" />
+    <Compile Include="InteractionWorker_IdeologicalDebateMeme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

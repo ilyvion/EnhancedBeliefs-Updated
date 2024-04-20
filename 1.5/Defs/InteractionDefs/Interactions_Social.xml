@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<InteractionDef>
+		<defName>EB_IdeologicalDebateMeme</defName>
+		<label>ideological debate</label>
+		<workerClass>EnhancedBeliefs.InteractionWorker_IdeologicalDebateMeme</workerClass>
+		<symbolSource>InitiatorIdeo</symbolSource>
+		<logRulesInitiator>
+			<rulesStrings>
+				<li>r_logentry->[INITIATOR_nameDef] debated with [RECIPIENT_nameDef] about their ideoligion.</li>
+			</rulesStrings>
+		</logRulesInitiator>
+	</InteractionDef>
+
+	<InteractionDef>
+		<defName>EB_IdeologicalDebatePrecept</defName>
+		<label>ideological debate</label>
+		<workerClass>EnhancedBeliefs.InteractionWorker_IdeologicalDebatePrecept</workerClass>
+		<symbolSource>InitiatorIdeo</symbolSource>
+		<logRulesInitiator>
+			<rulesStrings>
+				<li>r_logentry->[INITIATOR_nameDef] debated with [RECIPIENT_nameDef] about their ideoligion.</li>
+			</rulesStrings>
+		</logRulesInitiator>
+	</InteractionDef>
+
+</Defs>
