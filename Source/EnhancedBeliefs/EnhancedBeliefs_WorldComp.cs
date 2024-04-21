@@ -78,8 +78,8 @@ namespace EnhancedBeliefs
                 ideoDataList.RemoveAll((KeyValuePair<Ideo, AdvIdeoData> x) => !Find.IdeoManager.IdeosListForReading.Contains(x.Key));
             }
 
-            Scribe_Collections.Look(ref pawnTrackerData, "pawnTrackerData", LookMode.Reference, LookMode.Reference);
-            Scribe_Collections.Look(ref ideoDataList, "ideoDataList", LookMode.Reference, LookMode.Reference);
+            Scribe_Collections.Look(ref pawnTrackerData, "pawnTrackerData", LookMode.Reference, LookMode.Deep);
+            Scribe_Collections.Look(ref ideoDataList, "ideoDataList", LookMode.Reference, LookMode.Deep);
         }
 
         public void AddTracker(Pawn_IdeoTracker tracker)
