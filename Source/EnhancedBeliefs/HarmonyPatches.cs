@@ -4,6 +4,7 @@ using Mono.Security.Cryptography;
 using RimWorld;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -92,7 +93,7 @@ namespace EnhancedBeliefs
         {
             Pawn pawn = __instance.pawn;
 
-            if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(250))
+            if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(2000))
             {
                 Find.World?.GetComponent<EnhancedBeliefs_WorldComp>().pawnTrackerData[pawn].RecalculateRelationshipIdeoOpinions();
             }

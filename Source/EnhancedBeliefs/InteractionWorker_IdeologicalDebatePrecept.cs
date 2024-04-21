@@ -92,8 +92,8 @@ namespace EnhancedBeliefs
 
             topic = initiatorIssues.Intersect(recipientIssues).RandomElement();
 
-            float initiatorRoll = Rand.Value * initiator.GetStatValue(StatDefOf.ConversionPower) / initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * initiator.GetStatValue(StatDefOf.SocialImpact) * (1 + (initiator.ideo.Certainty - 0.6f) * 0.5f);
-            float recipientRoll = Rand.Value * recipient.GetStatValue(StatDefOf.ConversionPower) / recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * recipient.GetStatValue(StatDefOf.SocialImpact) * (1 + (recipient.ideo.Certainty - 0.6f) * 0.5f);
+            float initiatorRoll = Rand.Value * initiator.GetStatValue(StatDefOf.ConversionPower) / initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * initiator.GetStatValue(StatDefOf.SocialImpact) * (1f + (initiator.ideo.Certainty - 0.6f) * 0.5f);
+            float recipientRoll = Rand.Value * recipient.GetStatValue(StatDefOf.ConversionPower) / recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * recipient.GetStatValue(StatDefOf.SocialImpact) * (1f + (recipient.ideo.Certainty - 0.6f) * 0.5f);
 
             Pawn winner;
             Pawn loser;

@@ -2,6 +2,7 @@
 using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,6 +61,11 @@ namespace EnhancedBeliefs
         public Dictionary<Pawn, IdeoTrackerData> pawnTrackerData = new Dictionary<Pawn, IdeoTrackerData> ();
         public Dictionary<Ideo, AdvIdeoData> ideoDataList = new Dictionary<Ideo, AdvIdeoData>();
 
+        List<Pawn> cache1;
+        List<Ideo> cache2;
+        List<IdeoTrackerData> cache3;
+        List<AdvIdeoData> cache4;
+
         public EnhancedBeliefs_WorldComp(World world) : base(world) { }
 
         public override void ExposeData()
@@ -78,8 +84,13 @@ namespace EnhancedBeliefs
                 ideoDataList.RemoveAll((KeyValuePair<Ideo, AdvIdeoData> x) => !Find.IdeoManager.IdeosListForReading.Contains(x.Key));
             }
 
-            Scribe_Collections.Look(ref pawnTrackerData, "pawnTrackerData", LookMode.Reference, LookMode.Deep);
-            Scribe_Collections.Look(ref ideoDataList, "ideoDataList", LookMode.Reference, LookMode.Deep);
+            for (int i = 0; i < pawnTrackerData.Count; i++)
+            {
+                Log.Message(pawnTrackerData.Keys.ToList()[i]);
+            }
+
+            Scribe_Collections.Look(ref pawnTrackerData, "pawnTrackerData", LookMode.Reference, LookMode.Deep, ref cache1, ref cache3);
+            Scribe_Collections.Look(ref ideoDataList, "ideoDataList", LookMode.Reference, LookMode.Deep, ref cache2, ref cache4);
         }
 
         public void AddTracker(Pawn_IdeoTracker tracker)
@@ -153,6 +164,20 @@ namespace EnhancedBeliefs
         public Dictionary<MemeDef, float> memeOpinions = new Dictionary<MemeDef, float>();
         public Dictionary<PreceptDef, float> preceptOpinions = new Dictionary<PreceptDef, float>();
 
+        private List<Ideo> cache1;
+        private List<Ideo> cache2;
+        private List<MemeDef> cache3;
+        private List<PreceptDef> cache4;
+        private List<float> cache5;
+        private List<float> cache6;
+        private List<float> cache7;
+        private List<float> cache8;
+
+        public IdeoTrackerData()
+        {
+
+        }
+
         public IdeoTrackerData(Pawn pawn)
         {
             lastPositiveThoughtTick = Find.TickManager.TicksGame;
@@ -176,18 +201,8 @@ namespace EnhancedBeliefs
                 }
             }
 
-            // Possible performance bottleneck? Check later
-
-            List<Pawn> pawns = worldComp.ideoDataList[pawn.Ideo].pawnList;
-            float relationshipSum = 0;
-
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                relationshipSum += pawn.relations.OpinionOf(pawns[i]);
-            }
-
             float moodCertaintyOffset = EnhancedBeliefs_WorldComp.CertaintyOffsetFromThoughts.Evaluate(moodSum);
-            float relationshipMultiplier = 1 + EnhancedBeliefs_WorldComp.CertaintyMultiplierFromRelationships.Evaluate(relationshipSum) * Math.Sign(moodCertaintyOffset);
+            float relationshipMultiplier = 1 + EnhancedBeliefs_WorldComp.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(pawn.Ideo) / 0.02f) * Math.Sign(moodCertaintyOffset);
 
             cachedCertaintyChange += moodCertaintyOffset * relationshipMultiplier;
         }
@@ -345,12 +360,12 @@ namespace EnhancedBeliefs
 
         public void ExposeData()
         {
-            Scribe_Values.Look(ref pawn, "pawn");
+            Scribe_References.Look(ref pawn, "pawn");
             Scribe_Values.Look(ref lastPositiveThoughtTick, "lastPositiveThoughtTick");
-            Scribe_Collections.Look(ref baseIdeoOpinions, "baseIdeoOpinions", LookMode.Reference, LookMode.Value);
-            Scribe_Collections.Look(ref personalIdeoOpinions, "personalIdeoOpinions", LookMode.Reference, LookMode.Value);
-            Scribe_Collections.Look(ref memeOpinions, "memeOpinions", LookMode.Reference, LookMode.Value);
-            Scribe_Collections.Look(ref preceptOpinions, "preceptOpinions", LookMode.Reference, LookMode.Value);
+            Scribe_Collections.Look(ref baseIdeoOpinions, "baseIdeoOpinions", LookMode.Reference, LookMode.Value, ref cache1, ref cache5);
+            Scribe_Collections.Look(ref personalIdeoOpinions, "personalIdeoOpinions", LookMode.Reference, LookMode.Value, ref cache2, ref cache6);
+            Scribe_Collections.Look(ref memeOpinions, "memeOpinions", LookMode.Reference, LookMode.Value, ref cache3, ref cache7);
+            Scribe_Collections.Look(ref preceptOpinions, "preceptOpinions", LookMode.Reference, LookMode.Value, ref cache4, ref cache8);
         }
 
         // Change pawn's personal opinion of another ideo, usually positively
@@ -362,7 +377,7 @@ namespace EnhancedBeliefs
                 personalIdeoOpinions[ideo] = 0;
             }
 
-            personalIdeoOpinions[ideo] += 0.03f * power;
+            personalIdeoOpinions[ideo] += power * 100f;
         }
 
         // Check if pawn should get converted to a new ideo after losing certainty in some way.
@@ -458,6 +473,11 @@ namespace EnhancedBeliefs
     public class AdvIdeoData : IExposable
     {
         public List<Pawn> pawnList = new List<Pawn>();
+
+        public AdvIdeoData()
+        {
+
+        }
 
         public void ExposeData()
         {
