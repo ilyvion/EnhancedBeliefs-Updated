@@ -203,7 +203,7 @@ namespace EnhancedBeliefs
 
             if (ideo == pawn.Ideo)
             {
-                baseIdeoOpinions[ideo] = pawn.ideo.Certainty;
+                baseIdeoOpinions[ideo] = pawn.ideo.Certainty * 100f;
             }
 
             return Mathf.Clamp(baseIdeoOpinions[ideo] + personalIdeoOpinions[ideo] + IdeoOpinionFromRelationships(ideo), 0, 100) / 100f;
@@ -219,7 +219,7 @@ namespace EnhancedBeliefs
 
             if (ideo == pawn.Ideo)
             {
-                baseIdeoOpinions[ideo] = pawn.ideo.Certainty;
+                baseIdeoOpinions[ideo] = pawn.ideo.Certainty * 100f;
             }
 
             return new float[3] { baseIdeoOpinions[ideo] / 100f, personalIdeoOpinions[ideo] / 100f, IdeoOpinionFromRelationships(ideo) / 100f };

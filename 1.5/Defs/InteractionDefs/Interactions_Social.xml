@@ -25,4 +25,37 @@
 		</logRulesInitiator>
 	</InteractionDef>
 
+	<!--
+
+	<ThoughtDef>
+		<defName>EB_IdeologyOpinion</defName>
+		<thoughtClass>EnhancedBeliefs.Thought_IdeologyOpinion</thoughtClass>
+		<workerClass>EnhancedBeliefs.ThoughtWorker_IdeologyOpinion</workerClass>
+		<stages>
+			<li>
+				<label>despicable beliefs</label>
+				<baseOpinionOffset>-10</baseOpinionOffset>
+			</li>
+			<li>
+				<label>disliked beliefs</label>
+				<baseOpinionOffset>-5</baseOpinionOffset>
+			</li>
+			<li>
+				<label>unremarkable beliefs</label>
+				<baseOpinionOffset>0</baseOpinionOffset>
+				<visible>false</visible>
+			</li>
+			<li>
+				<label>aligning beliefs</label>
+				<baseOpinionOffset>4</baseOpinionOffset>
+			</li>
+			<li>
+				<label>exhalted beliefs</label>
+				<baseOpinionOffset>8</baseOpinionOffset>
+			</li>
+		</stages>
+	</ThoughtDef>
+
+	-->
+
 </Defs>
