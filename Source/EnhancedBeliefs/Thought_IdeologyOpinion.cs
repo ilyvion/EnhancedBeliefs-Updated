@@ -24,13 +24,13 @@ namespace EnhancedBeliefs
 
                 lastCacheTick = Find.TickManager.TicksGame;
 
-                if (Find.World == null || pawn.Ideo == null || otherPawn.Ideo == null)
+                if (pawn.Ideo == null || otherPawn.Ideo == null)
                 {
                     lastCachedStage = 2;
                     return 2;
                 }
 
-                EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+                GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
                 IdeoTrackerData tracker = comp.pawnTrackerData[pawn];
 
                 float opinion = tracker.IdeoOpinion(otherPawn.Ideo);

@@ -19,7 +19,7 @@ namespace EnhancedBeliefs
             letterDef = null;
             lookTargets = null;
 
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             Ideo ideo = recipient.Ideo;
             Ideo newIdeo = initiator.Ideo;
             IdeoTrackerData tracker = comp.pawnTrackerData[recipient];

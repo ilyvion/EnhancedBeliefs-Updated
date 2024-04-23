@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EnhancedBeliefsMod.cs" />
-    <Compile Include="EnhancedBeliefs_WorldComp.cs" />
+    <Compile Include="GameComponent_EnhancedBeliefs.cs" />
     <Compile Include="HarmonyPatches.cs" />
     <Compile Include="InteractionWorker_AdvancedConversionAttempt.cs" />
     <Compile Include="InteractionWorker_IdeologicalDebatePrecept.cs" />

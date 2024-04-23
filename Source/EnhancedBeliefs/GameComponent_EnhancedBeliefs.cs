@@ -13,7 +13,7 @@ using Verse.Noise;
 
 namespace EnhancedBeliefs
 {
-    public class EnhancedBeliefs_WorldComp : WorldComponent
+    public class GameComponent_EnhancedBeliefs : GameComponent
     {
         // Days to percentage
         public static readonly SimpleCurve CertaintyLossFromInactivity = new SimpleCurve
@@ -62,7 +62,7 @@ namespace EnhancedBeliefs
         public Dictionary<Pawn, IdeoTrackerData> pawnTrackerData = new Dictionary<Pawn, IdeoTrackerData> ();
         public Dictionary<Ideo, List<Pawn>> ideoPawnsList = new Dictionary<Ideo, List<Pawn>>();
 
-        public EnhancedBeliefs_WorldComp(World world) : base(world) { }
+        public GameComponent_EnhancedBeliefs(Game game) { }
 
         public void AddTracker(Pawn pawn)
         {
@@ -155,18 +155,6 @@ namespace EnhancedBeliefs
             }
             return ideoPawnsList[ideo];
         }
-
-        public override void FinalizeInit()
-        {
-            base.FinalizeInit();
-
-            foreach (KeyValuePair<Pawn, IdeoTrackerData> pair in Pawn_ExposeData.loadBuffer)
-            {
-                pawnTrackerData[pair.Key] = pair.Value;
-            }
-
-            Pawn_ExposeData.loadBuffer.Clear();
-        }
     }
 
     public class IdeoTrackerData : IExposable
@@ -204,7 +192,7 @@ namespace EnhancedBeliefs
             this.pawn = pawn;
         }
 
-        public void CertaintyChangeRecache(EnhancedBeliefs_WorldComp worldComp)
+        public void CertaintyChangeRecache(GameComponent_EnhancedBeliefs worldComp)
         {
             cachedCertaintyChange = 0;
             List<Thought> thoughts = new List<Thought>();
@@ -221,8 +209,8 @@ namespace EnhancedBeliefs
                 }
             }
 
-            float moodCertaintyOffset = EnhancedBeliefs_WorldComp.CertaintyOffsetFromThoughts.Evaluate(moodSum);
-            float relationshipMultiplier = 1 + EnhancedBeliefs_WorldComp.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(pawn.Ideo) / 0.02f) * Math.Sign(moodCertaintyOffset);
+            float moodCertaintyOffset = GameComponent_EnhancedBeliefs.CertaintyOffsetFromThoughts.Evaluate(moodSum);
+            float relationshipMultiplier = 1 + GameComponent_EnhancedBeliefs.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(pawn.Ideo) / 0.02f) * Math.Sign(moodCertaintyOffset);
 
             cachedCertaintyChange += moodCertaintyOffset * relationshipMultiplier;
         }
@@ -332,7 +320,7 @@ namespace EnhancedBeliefs
             }
 
             // -5 opinion per incompatible meme, +5 per shared meme
-            opinion -= EnhancedBeliefs_WorldComp.BeliefDifferences(pawnIdeo, ideo) * 5f;
+            opinion -= GameComponent_EnhancedBeliefs.BeliefDifferences(pawnIdeo, ideo) * 5f;
             // Only decrease opinion if we don't like getting converted, shouldn't go the other way
             opinion *= Mathf.Clamp01(pawn.GetStatValue(StatDefOf.CertaintyLossFactor));
 
@@ -365,7 +353,7 @@ namespace EnhancedBeliefs
         public void CacheRelationshipIdeoOpinion(Ideo ideo)
         {
             float opinion = 0;
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             List<Pawn> pawns = comp.GetIdeoPawns(ideo);
 
             for (int i = 0; i < pawns.Count; i++)

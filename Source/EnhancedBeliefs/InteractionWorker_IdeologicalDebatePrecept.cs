@@ -63,7 +63,7 @@ namespace EnhancedBeliefs
             letterDef = null;
             lookTargets = null;
 
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
             IdeoTrackerData initiatorTracker = comp.pawnTrackerData[initiator];
             IdeoTrackerData recipientTracker = comp.pawnTrackerData[recipient];

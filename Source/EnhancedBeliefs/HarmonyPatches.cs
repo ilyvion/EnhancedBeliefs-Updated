@@ -30,13 +30,7 @@ namespace EnhancedBeliefs
                 return;
             }
 
-            if (Find.World == null)
-            {
-                Log.Error("Pawn setup attempted with null World!");
-                return;
-            }
-
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
             if (!comp.pawnTrackerData.ContainsKey(pawn))
             {
@@ -56,13 +50,7 @@ namespace EnhancedBeliefs
                 return;
             }
 
-            if (Find.World == null)
-            {
-                Log.Error("Pawn setup attempted with null World!");
-                return;
-            }
-
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
             if (comp.pawnTrackerData.ContainsKey(PawnComponentsUtility_Initialize.lastPawn))
             {
@@ -77,13 +65,7 @@ namespace EnhancedBeliefs
     {
         public static void Postfix(Ideo __instance)
         {
-            if (Find.World == null)
-            {
-                Log.Error("Ideo setup attempted with null World!");
-                return;
-            }
-
-            Find.World.GetComponent<EnhancedBeliefs_WorldComp>().AddIdeoTracker(__instance);
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().AddIdeoTracker(__instance);
         }
     }
 
@@ -92,23 +74,17 @@ namespace EnhancedBeliefs
     {
         public static bool Prefix(Pawn_IdeoTracker __instance, ref float __result)
         {
-            // WTF
-            if (Find.World == null)
-            {
-                return true;
-            }
-
             __result = 0;
 
             Pawn pawn = __instance.pawn;
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
             IdeoTrackerData data = comp.pawnTrackerData[pawn];
 
             // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
             if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > GenDate.TicksPerDay * 3f)
             {
-                __result -= EnhancedBeliefs_WorldComp.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / GenDate.TicksPerDay);
+                __result -= GameComponent_EnhancedBeliefs.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / GenDate.TicksPerDay);
             }
 
             // 4 recaches per second should be enough
@@ -137,7 +113,7 @@ namespace EnhancedBeliefs
 
             if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(GenTicks.TickLongInterval))
             {
-                Find.World?.GetComponent<EnhancedBeliefs_WorldComp>().pawnTrackerData[pawn].RecalculateRelationshipIdeoOpinions();
+                Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTrackerData[pawn].RecalculateRelationshipIdeoOpinions();
             }
         }
     }
@@ -149,7 +125,7 @@ namespace EnhancedBeliefs
     {
         public static void Postfix(Pawn_IdeoTracker __instance, Ideo ideo)
         {
-            Find.World?.GetComponent<EnhancedBeliefs_WorldComp>().SetIdeo(__instance.pawn, ideo);
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().SetIdeo(__instance.pawn, ideo);
         }
     }
 
@@ -158,7 +134,7 @@ namespace EnhancedBeliefs
     {
         public static void Postfix(IdeoDevelopmentTracker __instance)
         {
-            Find.World?.GetComponent<EnhancedBeliefs_WorldComp>().FluidIdeoRecache(__instance.ideo);
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().FluidIdeoRecache(__instance.ideo);
         }
     }
 
@@ -218,7 +194,7 @@ namespace EnhancedBeliefs
 
         public static void DrawOpinionTab(Rect containerRect, Pawn pawn, bool hovering)
         {
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             IdeoTrackerData data = comp.pawnTrackerData[pawn];
             opinionMenuOpen = true;
 
@@ -231,7 +207,7 @@ namespace EnhancedBeliefs
 
                 if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > 180000f)
                 {
-                    tip += "Certainty loss from lack of belief affirmation: " + EnhancedBeliefs_WorldComp.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / 60000f).ToStringPercent() + "\n";
+                    tip += "Certainty loss from lack of belief affirmation: " + GameComponent_EnhancedBeliefs.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / 60000f).ToStringPercent() + "\n";
                 }
 
                 tip += "\n";
@@ -304,7 +280,7 @@ namespace EnhancedBeliefs
 
             pawn.ideo.Certainty = Mathf.Clamp01(pawn.ideo.Certainty - 0.5f);
 
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             IdeoTrackerData data = comp.pawnTrackerData[pawn];
 
             if (data.CheckConversion(noBreakdown: true) == ConversionOutcome.Success)
@@ -353,34 +329,22 @@ namespace EnhancedBeliefs
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.ExposeData))]
     public static class Pawn_ExposeData
     {
-        public static Dictionary<Pawn, IdeoTrackerData> loadBuffer = new Dictionary<Pawn, IdeoTrackerData>();
-
         public static void Postfix(Pawn __instance)
         {
-            if (Find.World == null || __instance.ideo == null)
+            if (__instance.ideo == null)
             {
                 return;
             }
 
-            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(__instance);
 
             Scribe_Deep.Look(ref data, "EB_IdeoTrackerData");
 
             if (Scribe.mode != LoadSaveMode.Saving)
             {
-                loadBuffer[__instance] = data;
                 comp.pawnTrackerData[__instance] = data;
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(Game), nameof(Game.ClearCaches))]
-    public static class Game_CacheClear
-    {
-        public static void Postfix()
-        {
-            Pawn_ExposeData.loadBuffer.Clear();
         }
     }
 }
