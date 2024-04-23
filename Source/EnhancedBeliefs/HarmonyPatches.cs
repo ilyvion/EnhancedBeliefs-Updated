@@ -103,19 +103,7 @@ namespace EnhancedBeliefs
             Pawn pawn = __instance.pawn;
             EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
 
-            if (!comp.pawnTrackerData.ContainsKey(pawn))
-            {
-                Log.Message("{0} missing from trackers at map {1}".Formatted(pawn, pawn.Map));
-                return true;
-            }
-
             IdeoTrackerData data = comp.pawnTrackerData[pawn];
-
-            if (data == null)
-            {
-                Log.Message("{0} had a null tracker at map {1}".Formatted(pawn, pawn.Map));
-                return true;
-            }
 
             // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
             if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > GenDate.TicksPerDay * 3f)
@@ -365,6 +353,8 @@ namespace EnhancedBeliefs
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.ExposeData))]
     public static class Pawn_ExposeData
     {
+        public static Dictionary<Pawn, IdeoTrackerData> loadBuffer = new Dictionary<Pawn, IdeoTrackerData>();
+
         public static void Postfix(Pawn __instance)
         {
             if (Find.World == null || __instance.ideo == null)
@@ -375,16 +365,22 @@ namespace EnhancedBeliefs
             EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
             IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(__instance);
 
-            Log.Message("Fetched data {0} for pawn {1} at {2}".Formatted((data != null).ToString(), __instance, __instance.Map));
-
             Scribe_Deep.Look(ref data, "EB_IdeoTrackerData");
 
             if (Scribe.mode != LoadSaveMode.Saving)
             {
+                loadBuffer[__instance] = data;
                 comp.pawnTrackerData[__instance] = data;
             }
+        }
+    }
 
-            Log.Message("{0} pawn {1} with data? {2} at {3}".Formatted(Scribe.mode.ToString(), __instance, (data != null).ToString(), __instance.Map));
+    [HarmonyPatch(typeof(Game), nameof(Game.ClearCaches))]
+    public static class Game_CacheClear
+    {
+        public static void Postfix()
+        {
+            Pawn_ExposeData.loadBuffer.Clear();
         }
     }
 }

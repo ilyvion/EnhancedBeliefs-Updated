@@ -155,6 +155,18 @@ namespace EnhancedBeliefs
             }
             return ideoPawnsList[ideo];
         }
+
+        public override void FinalizeInit()
+        {
+            base.FinalizeInit();
+
+            foreach (KeyValuePair<Pawn, IdeoTrackerData> pair in Pawn_ExposeData.loadBuffer)
+            {
+                pawnTrackerData[pair.Key] = pair.Value;
+            }
+
+            Pawn_ExposeData.loadBuffer.Clear();
+        }
     }
 
     public class IdeoTrackerData : IExposable
