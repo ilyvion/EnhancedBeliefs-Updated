@@ -16,18 +16,59 @@ using static HarmonyLib.Code;
 namespace EnhancedBeliefs
 {
     // Bootleg solution because prepatcher will scare off workshop dummies
-    [HarmonyPatch(typeof(Pawn_IdeoTracker), MethodType.Constructor, new Type[] { typeof(Pawn) })]
-    public static class IdeoTracker_Constructor
+    [HarmonyPatch(typeof(PawnComponentsUtility), nameof(PawnComponentsUtility.CreateInitialComponents))]
+    public static class PawnComponentsUtility_Initialize
     {
-        public static void Postfix(Pawn_IdeoTracker __instance)
+        public static Pawn lastPawn;
+
+        public static void Postfix(Pawn pawn)
         {
+            lastPawn = null;
+
+            if (pawn.ideo == null)
+            {
+                return;
+            }
+
             if (Find.World == null)
             {
                 Log.Error("Pawn setup attempted with null World!");
                 return;
             }
 
-            Find.World.GetComponent<EnhancedBeliefs_WorldComp>().AddTracker(__instance);
+            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+
+            if (!comp.pawnTrackerData.ContainsKey(pawn))
+            {
+                comp.AddTracker(pawn);
+                lastPawn = pawn;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.TryGenerateNewPawnInternal))]
+    public static class PawnGenerator_Generate
+    {
+        public static void Postfix(Pawn __result)
+        {
+            if (__result != null || PawnComponentsUtility_Initialize.lastPawn == null)
+            {
+                return;
+            }
+
+            if (Find.World == null)
+            {
+                Log.Error("Pawn setup attempted with null World!");
+                return;
+            }
+
+            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+
+            if (comp.pawnTrackerData.ContainsKey(PawnComponentsUtility_Initialize.lastPawn))
+            {
+                comp.pawnTrackerData.Remove(PawnComponentsUtility_Initialize.lastPawn);
+                PawnComponentsUtility_Initialize.lastPawn = null;
+            }
         }
     }
 
@@ -61,16 +102,29 @@ namespace EnhancedBeliefs
 
             Pawn pawn = __instance.pawn;
             EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+
+            if (!comp.pawnTrackerData.ContainsKey(pawn))
+            {
+                Log.Message("{0} missing from trackers at map {1}".Formatted(pawn, pawn.Map));
+                return true;
+            }
+
             IdeoTrackerData data = comp.pawnTrackerData[pawn];
 
-            // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
-            if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > 180000f)
+            if (data == null)
             {
-                __result -= EnhancedBeliefs_WorldComp.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / 60000f);
+                Log.Message("{0} had a null tracker at map {1}".Formatted(pawn, pawn.Map));
+                return true;
+            }
+
+            // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
+            if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > GenDate.TicksPerDay * 3f)
+            {
+                __result -= EnhancedBeliefs_WorldComp.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / GenDate.TicksPerDay);
             }
 
             // 4 recaches per second should be enough
-            if (data.cachedCertaintyChange == -9999f || pawn.IsHashIntervalTick(250))
+            if (data.cachedCertaintyChange == -9999f || pawn.IsHashIntervalTick(GenTicks.TickRareInterval))
             {
                 data.CertaintyChangeRecache(comp);
             }
@@ -93,7 +147,7 @@ namespace EnhancedBeliefs
         {
             Pawn pawn = __instance.pawn;
 
-            if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(2000))
+            if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(GenTicks.TickLongInterval))
             {
                 Find.World?.GetComponent<EnhancedBeliefs_WorldComp>().pawnTrackerData[pawn].RecalculateRelationshipIdeoOpinions();
             }
@@ -304,6 +358,33 @@ namespace EnhancedBeliefs
             }
 
             return true;
+        }
+    }
+
+    // Scribing data in a postfix to ensure that no junk data is saved
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.ExposeData))]
+    public static class Pawn_ExposeData
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            if (Find.World == null || __instance.ideo == null)
+            {
+                return;
+            }
+
+            EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(__instance);
+
+            Log.Message("Fetched data {0} for pawn {1} at {2}".Formatted((data != null).ToString(), __instance, __instance.Map));
+
+            Scribe_Deep.Look(ref data, "EB_IdeoTrackerData");
+
+            if (Scribe.mode != LoadSaveMode.Saving)
+            {
+                comp.pawnTrackerData[__instance] = data;
+            }
+
+            Log.Message("{0} pawn {1} with data? {2} at {3}".Formatted(Scribe.mode.ToString(), __instance, (data != null).ToString(), __instance.Map));
         }
     }
 }

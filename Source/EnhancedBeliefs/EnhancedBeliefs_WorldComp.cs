@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 using Verse.Noise;
 
 namespace EnhancedBeliefs
@@ -59,59 +60,44 @@ namespace EnhancedBeliefs
         };
 
         public Dictionary<Pawn, IdeoTrackerData> pawnTrackerData = new Dictionary<Pawn, IdeoTrackerData> ();
-        public Dictionary<Ideo, AdvIdeoData> ideoDataList = new Dictionary<Ideo, AdvIdeoData>();
-
-        List<Pawn> cache1;
-        List<Ideo> cache2;
-        List<IdeoTrackerData> cache3;
-        List<AdvIdeoData> cache4;
+        public Dictionary<Ideo, List<Pawn>> ideoPawnsList = new Dictionary<Ideo, List<Pawn>>();
 
         public EnhancedBeliefs_WorldComp(World world) : base(world) { }
 
-        public override void ExposeData()
+        public void AddTracker(Pawn pawn)
         {
-            base.ExposeData();
-
-            // Cleaning list from destroyed pawns
-            if (Scribe.mode == LoadSaveMode.Saving)
-            {
-                pawnTrackerData.RemoveAll((KeyValuePair<Pawn, IdeoTrackerData> x) => !PawnsFinder.All_AliveOrDead.Contains(x.Key));
-            }
-
-            // Same but for destroyed ideos, if that happens
-            if (Scribe.mode == LoadSaveMode.Saving)
-            {
-                ideoDataList.RemoveAll((KeyValuePair<Ideo, AdvIdeoData> x) => !Find.IdeoManager.IdeosListForReading.Contains(x.Key));
-            }
-
-            for (int i = 0; i < pawnTrackerData.Count; i++)
-            {
-                Log.Message(pawnTrackerData.Keys.ToList()[i]);
-            }
-
-            Scribe_Collections.Look(ref pawnTrackerData, "pawnTrackerData", LookMode.Reference, LookMode.Deep, ref cache1, ref cache3);
-            Scribe_Collections.Look(ref ideoDataList, "ideoDataList", LookMode.Reference, LookMode.Deep, ref cache2, ref cache4);
-        }
-
-        public void AddTracker(Pawn_IdeoTracker tracker)
-        {
-            IdeoTrackerData data = new IdeoTrackerData(tracker.pawn);
-            pawnTrackerData[tracker.pawn] = data;
+            IdeoTrackerData data = new IdeoTrackerData(pawn);
+            pawnTrackerData[pawn] = data;
         }
 
         public void AddIdeoTracker(Ideo ideo)
         {
-            ideoDataList[ideo] = new AdvIdeoData();
+            ideoPawnsList[ideo] = new List<Pawn>();
         }
 
         public void SetIdeo(Pawn pawn, Ideo ideo)
         {
-            if (!ideoDataList.ContainsKey(ideo))
+            List<Ideo> ideoList = ideoPawnsList.Keys.ToList();
+
+            for (int i = 0; i < ideoList.Count; i++)
             {
-                ideoDataList[ideo] = new AdvIdeoData();
+                Ideo ideo2 = ideoList[i];
+
+                if (ideoPawnsList[ideo2].Contains(pawn))
+                {
+                    ideoPawnsList[ideo2].Remove(pawn);
+                }
             }
 
-            ideoDataList[ideo].pawnList.Add(pawn);
+            if (!ideoPawnsList.ContainsKey(ideo))
+            {
+                AddIdeoTracker(ideo);
+            }
+
+            if (!ideoPawnsList[ideo].Contains(pawn))
+            {
+                ideoPawnsList[ideo].Add(pawn);
+            }
         }
 
         public static int BeliefDifferences(Ideo ideo1, Ideo ideo2)
@@ -146,6 +132,28 @@ namespace EnhancedBeliefs
             {
                 pair.Value.baseIdeoOpinions[ideo] = pair.Value.DefaultIdeoOpinion(ideo);
             }
+        }
+
+        public List<Pawn> GetIdeoPawns(Ideo ideo)
+        {
+            if (ideoPawnsList.ContainsKey(ideo))
+            {
+                return ideoPawnsList[ideo];
+            }
+
+            ideoPawnsList[ideo] = new List<Pawn>();
+            List<Pawn> pawns = PawnsFinder.All_AliveOrDead;
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+
+                if (pawn.ideo != null && pawn.Ideo == ideo)
+                {
+                    ideoPawnsList[ideo].Add(pawn);
+                }
+            }
+            return ideoPawnsList[ideo];
         }
     }
 
@@ -346,10 +354,11 @@ namespace EnhancedBeliefs
         {
             float opinion = 0;
             EnhancedBeliefs_WorldComp comp = Find.World.GetComponent<EnhancedBeliefs_WorldComp>();
+            List<Pawn> pawns = comp.GetIdeoPawns(ideo);
 
-            for (int i = 0; i < comp.ideoDataList[ideo].pawnList.Count; i++)
+            for (int i = 0; i < pawns.Count; i++)
             {
-                Pawn otherPawn = comp.ideoDataList[ideo].pawnList[i];
+                Pawn otherPawn = pawns[i];
 
                 // Up to +-2 opinion per pawn
                 opinion += pawn.relations.OpinionOf(otherPawn) * 0.02f;
@@ -467,21 +476,6 @@ namespace EnhancedBeliefs
             // Oops
             pawn.mindState.mentalStateHandler.TryStartMentalState(EnhancedBeliefsDefOf.IdeoChange);
             return ConversionOutcome.Breakdown;
-        }
-    }
-
-    public class AdvIdeoData : IExposable
-    {
-        public List<Pawn> pawnList = new List<Pawn>();
-
-        public AdvIdeoData()
-        {
-
-        }
-
-        public void ExposeData()
-        {
-            Scribe_Collections.Look(ref pawnList, "pawnList", LookMode.Reference);
         }
     }
 
