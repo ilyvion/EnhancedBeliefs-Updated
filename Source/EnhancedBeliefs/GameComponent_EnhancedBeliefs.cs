@@ -229,7 +229,7 @@ namespace EnhancedBeliefs
                 baseIdeoOpinions[ideo] = pawn.ideo.Certainty * 100f;
             }
 
-            return Mathf.Clamp(baseIdeoOpinions[ideo] + personalIdeoOpinions[ideo] + IdeoOpinionFromRelationships(ideo), 0, 100) / 100f;
+            return Mathf.Clamp(baseIdeoOpinions[ideo] + PersonalIdeoOpinion(ideo) + IdeoOpinionFromRelationships(ideo), 0, 100) / 100f;
         }
 
         // Rundown on the function above, for UI reasons
@@ -245,7 +245,7 @@ namespace EnhancedBeliefs
                 baseIdeoOpinions[ideo] = pawn.ideo.Certainty * 100f;
             }
 
-            return new float[3] { baseIdeoOpinions[ideo] / 100f, personalIdeoOpinions[ideo] / 100f, IdeoOpinionFromRelationships(ideo) / 100f };
+            return new float[3] { baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f, IdeoOpinionFromRelationships(ideo) / 100f };
         }
 
         // Get pawn's basic opinion from hearing about ideos beliefs, based on their traits, relationships and current ideo
@@ -309,6 +309,33 @@ namespace EnhancedBeliefs
                 }
             }
 
+            // -5 opinion per incompatible meme, +5 per shared meme
+            opinion -= GameComponent_EnhancedBeliefs.BeliefDifferences(pawnIdeo, ideo) * 5f;
+            // Only decrease opinion if we don't like getting converted, shouldn't go the other way
+            opinion *= Mathf.Clamp01(pawn.GetStatValue(StatDefOf.CertaintyLossFactor));
+
+            return Mathf.Clamp(opinion, 0, 100);
+        }
+
+        public float PersonalIdeoOpinion(Ideo ideo)
+        {
+            if (!baseIdeoOpinions.ContainsKey(ideo))
+            {
+                baseIdeoOpinions[ideo] = DefaultIdeoOpinion(ideo);
+                personalIdeoOpinions[ideo] = 0;
+            }
+
+            float opinion = 0;
+
+            for (int i = 0; i < ideo.memes.Count; i++)
+            {
+                MemeDef meme = ideo.memes[i];
+                if (memeOpinions.ContainsKey(meme))
+                {
+                    opinion += memeOpinions[meme];
+                }
+            }
+
             for (int i = 0; i < ideo.precepts.Count; i++)
             {
                 PreceptDef precept = ideo.precepts[i].def;
@@ -319,12 +346,7 @@ namespace EnhancedBeliefs
                 }
             }
 
-            // -5 opinion per incompatible meme, +5 per shared meme
-            opinion -= GameComponent_EnhancedBeliefs.BeliefDifferences(pawnIdeo, ideo) * 5f;
-            // Only decrease opinion if we don't like getting converted, shouldn't go the other way
-            opinion *= Mathf.Clamp01(pawn.GetStatValue(StatDefOf.CertaintyLossFactor));
-
-            return Mathf.Clamp(opinion, 0, 100);
+            return opinion;
         }
 
         public float IdeoOpinionFromRelationships(Ideo ideo)
@@ -387,6 +409,26 @@ namespace EnhancedBeliefs
             }
 
             personalIdeoOpinions[ideo] += power * 100f;
+        }
+
+        public void AdjustMemeOpinion(MemeDef meme, float power)
+        {
+            if (!memeOpinions.ContainsKey(meme))
+            {
+                memeOpinions[meme] = 0;
+            }
+
+            memeOpinions[meme] += power * 100f;
+        }
+
+        public void AdjustPreceptOpinion(PreceptDef precept, float power)
+        {
+            if (!preceptOpinions.ContainsKey(precept))
+            {
+                preceptOpinions[precept] = 0;
+            }
+
+            preceptOpinions[precept] += power * 100f;
         }
 
         // Check if pawn should get converted to a new ideo after losing certainty in some way.

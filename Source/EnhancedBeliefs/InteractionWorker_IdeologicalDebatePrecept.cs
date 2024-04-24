@@ -92,21 +92,48 @@ namespace EnhancedBeliefs
 
             topic = initiatorIssues.Intersect(recipientIssues).RandomElement();
 
+            PreceptDef initiatorPrecept = null;
+            PreceptDef recipientPrecept = null;
+
+            for (int i = 0; i < initiatorIdeo.precepts.Count; i++)
+            {
+                if (initiatorIdeo.precepts[i].def.issue == topic)
+                {
+                    initiatorPrecept = initiatorIdeo.precepts[i].def;
+                    break;
+                }
+            }
+
+            for (int i = 0; i < recipientIdeo.precepts.Count; i++)
+            {
+                if (recipientIdeo.precepts[i].def.issue == topic)
+                {
+                    recipientPrecept = recipientIdeo.precepts[i].def;
+                    break;
+                }
+            }
+
             float initiatorRoll = Rand.Value * initiator.GetStatValue(StatDefOf.ConversionPower) / initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * initiator.GetStatValue(StatDefOf.SocialImpact) * (1f + (initiator.ideo.Certainty - 0.6f) * 0.5f);
             float recipientRoll = Rand.Value * recipient.GetStatValue(StatDefOf.ConversionPower) / recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * recipient.GetStatValue(StatDefOf.SocialImpact) * (1f + (recipient.ideo.Certainty - 0.6f) * 0.5f);
 
             Pawn winner;
             Pawn loser;
+            PreceptDef winnerPrecept;
+            PreceptDef loserPrecept;
 
             if (initiatorRoll - recipientRoll > 0.1f)
             {
                 winner = initiator;
                 loser = recipient;
+                winnerPrecept = initiatorPrecept;
+                loserPrecept = recipientPrecept;
             }
             else if (recipientRoll - initiatorRoll > 0.1f)
             {
                 winner = recipient;
                 loser = initiator;
+                winnerPrecept = recipientPrecept;
+                loserPrecept = initiatorPrecept;
             }
             else
             {
@@ -131,8 +158,8 @@ namespace EnhancedBeliefs
 
                 if (Rand.Value < randomOpinion)
                 {
-                    initiatorTracker.AdjustPersonalOpinion(initiator.Ideo, -0.03f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
-                    recipientTracker.AdjustPersonalOpinion(recipient.Ideo, -0.03f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
+                    initiatorTracker.AdjustPreceptOpinion(initiatorPrecept, -0.03f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
+                    recipientTracker.AdjustPreceptOpinion(recipientPrecept, -0.03f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
 
                     initiator.ideo.Certainty = Mathf.Clamp01(0.01f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
                     recipient.ideo.Certainty = Mathf.Clamp01(0.01f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
@@ -184,30 +211,8 @@ namespace EnhancedBeliefs
             }
 
             IdeoTrackerData loserTracker = comp.pawnTrackerData[loser];
-            PreceptDef winnerPrecept = null;
-
-            for (int i = 0; i < winner.Ideo.precepts.Count; i++)
-            {
-                if (winner.Ideo.precepts[i].def.issue == topic)
-                {
-                    winnerPrecept = winner.Ideo.precepts[i].def;
-                    break;
-                }
-            }
-
-            for (int i = 0; i < Find.IdeoManager.ideos.Count; i++)
-            {
-                Ideo ideo = Find.IdeoManager.ideos[i];
-
-                for (int j = 0; j < ideo.precepts.Count; j++)
-                {
-                    if (ideo.precepts[j].def.issue == topic)
-                    {
-                        loserTracker.AdjustPersonalOpinion(ideo, (ideo.precepts[j].def == winnerPrecept ? 0.03f : -0.03f) * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
-                        break;
-                    }
-                }
-            }
+            loserTracker.AdjustPreceptOpinion(winnerPrecept, 0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
+            loserTracker.AdjustPreceptOpinion(loserPrecept, -0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
         }
     }
 }

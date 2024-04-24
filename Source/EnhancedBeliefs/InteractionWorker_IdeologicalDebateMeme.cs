@@ -151,8 +151,8 @@ namespace EnhancedBeliefs
                         }
                     }
 
-                    initiatorTracker.AdjustPersonalOpinion(initiator.Ideo, -0.03f * initiatorLossFactor * (0.8f + Rand.Value * 0.4f));
-                    recipientTracker.AdjustPersonalOpinion(recipient.Ideo, -0.03f * recipientLossFactor * (0.8f + Rand.Value * 0.4f));
+                    initiatorTracker.AdjustMemeOpinion(topic, -0.03f * initiatorLossFactor * (0.8f + Rand.Value * 0.4f));
+                    recipientTracker.AdjustMemeOpinion(topic, -0.03f * recipientLossFactor * (0.8f + Rand.Value * 0.4f));
 
                     initiator.ideo.Certainty = Mathf.Clamp01(0.01f * initiatorLossFactor * (0.8f + Rand.Value * 0.4f));
                     recipient.ideo.Certainty = Mathf.Clamp01(0.01f * recipientLossFactor * (0.8f + Rand.Value * 0.4f));
@@ -205,16 +205,7 @@ namespace EnhancedBeliefs
 
             bool positiveOutcome = winner.Ideo.memes.Contains(topic);
             IdeoTrackerData loserTracker = comp.pawnTrackerData[loser];
-
-            for (int i = 0; i < Find.IdeoManager.ideos.Count; i++)
-            {
-                Ideo ideo = Find.IdeoManager.ideos[i];
-
-                if (ideo.memes.Contains(topic))
-                {
-                    loserTracker.AdjustPersonalOpinion(ideo, (positiveOutcome ? 0.03f : -0.03f) * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
-                }
-            }
+            loserTracker.AdjustMemeOpinion(topic, (positiveOutcome ? 0.03f : -0.03f) * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
         }
     }
 }
