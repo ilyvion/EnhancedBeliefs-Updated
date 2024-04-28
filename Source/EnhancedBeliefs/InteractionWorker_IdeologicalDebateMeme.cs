@@ -53,7 +53,7 @@ namespace EnhancedBeliefs
                 return 0f;
             }
 
-            return 0.03f * CompatibilityFactorCurve.Evaluate(initiator.relations.CompatibilityWith(recipient));
+            return 0.03f * initiator.GetStatValue(StatDefOf.SocialIdeoSpreadFrequencyFactor) * CompatibilityFactorCurve.Evaluate(initiator.relations.CompatibilityWith(recipient));
         }
 
         public override void Interacted(Pawn initiator, Pawn recipient, List<RulePackDef> extraSentencePacks, out string letterText, out string letterLabel, out LetterDef letterDef, out LookTargets lookTargets)

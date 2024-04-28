@@ -89,6 +89,11 @@ namespace EnhancedBeliefs
                 }
             }
 
+            if (ideo == null)
+            {
+                return;
+            }
+
             if (!ideoPawnsList.ContainsKey(ideo))
             {
                 AddIdeoTracker(ideo);
@@ -325,7 +330,7 @@ namespace EnhancedBeliefs
                 personalIdeoOpinions[ideo] = 0;
             }
 
-            float opinion = 0;
+            float opinion = personalIdeoOpinions[ideo];
 
             for (int i = 0; i < ideo.memes.Count; i++)
             {
@@ -500,7 +505,7 @@ namespace EnhancedBeliefs
                 pawn.ideo.Certainty = rundown[0] + rundown[1];
                 personalIdeoOpinions[ideo] = 0;
                 // Keep current opinion of our old ideo by moving difference between new base and old base (certainty) into personal thoughts
-                personalIdeoOpinions[oldIdeo] -= DetailedIdeoOpinion(oldIdeo)[0] - certainty;
+                AdjustPersonalOpinion(oldIdeo, certainty - DetailedIdeoOpinion(oldIdeo)[0]);
 
                 if (!pawn.ideo.PreviousIdeos.Contains(ideo))
                 {

@@ -48,6 +48,7 @@
     <Compile Include="InteractionWorker_IdeologicalDebatePrecept.cs" />
     <Compile Include="InteractionWorker_IdeologicalDebateMeme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadingOutcomeDoer_CertaintyChange.cs" />
     <Compile Include="ThoughtWorker_IdeologyOpinion.cs" />
     <Compile Include="Thought_IdeologyOpinion.cs" />
   </ItemGroup>
