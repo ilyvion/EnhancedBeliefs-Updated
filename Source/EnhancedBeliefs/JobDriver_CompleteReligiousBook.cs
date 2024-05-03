@@ -123,6 +123,7 @@ namespace EnhancedBeliefs
                     Book newBook = ThingMaker.MakeThing(EnhancedBeliefsDefOf.EB_Ideobook) as Book;
                     GenPlace.TryPlaceThing(newBook, pawn.Position, pawn.Map, ThingPlaceMode.Near);
                     newBook.TryGetComp<CompQuality>().SetQuality(QualityUtility.GenerateQualityCreatedByPawn(pawn, SkillDefOf.Artistic), ArtGenerationContext.Colony);
+                    newBook.StyleDef = Faction.OfPlayer.ideos.PrimaryIdeo.style.StyleForThingDef(newBook.def)?.styleDef;
 
                     foreach (BookOutcomeDoer doer in newBook.BookComp.Doers)
                     {

@@ -8,6 +8,7 @@
 	</supportedVersions>
 	<packageId>smartkar.enhancedbeliefs</packageId>
 	<modDependencies>
+		
 		<li>
 			<packageId>brrainz.harmony</packageId>
 			<displayName>Harmony</displayName>

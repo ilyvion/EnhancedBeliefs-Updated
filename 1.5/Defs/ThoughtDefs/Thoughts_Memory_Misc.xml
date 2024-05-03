@@ -7,7 +7,7 @@
         <durationDays>3</durationDays>
         <stackLimit>2</stackLimit>
         <nullifyingHediffs>
-            <li>Inhumanized</li>
+            <li MayRequire="Ludeon.RimWorld.Anomaly">Inhumanized</li>
         </nullifyingHediffs>
         <stages>
             <li>
