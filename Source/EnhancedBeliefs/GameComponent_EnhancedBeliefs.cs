@@ -517,7 +517,7 @@ namespace EnhancedBeliefs
 
                 // Move personal opinion into certainty i.e. base opinion, then zero it, since base opinions are fixed and personal beliefs are what is usually meant by certainty anyways
                 float[] rundown = DetailedIdeoOpinion(ideo);
-                pawn.ideo.Certainty = Mathf.Min(rundown[0]) + rundown[1];
+                pawn.ideo.Certainty = Mathf.Min(rundown[0], 0.2f) + rundown[1];
                 personalIdeoOpinions[ideo] = 0;
                 
                 // Keep current opinion of our old ideo by moving difference between new base and old base (certainty) into personal thoughts
