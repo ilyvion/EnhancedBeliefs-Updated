@@ -18,13 +18,13 @@ namespace EnhancedBeliefs
         // In percents, so divided by 100 when actually applied
         public static readonly SimpleCurve certaintyGainFromQuality = new SimpleCurve
         {
-            new CurvePoint(0f, 0.002f),
-            new CurvePoint(1f, 0.005f),
-            new CurvePoint(2f, 0.008f),
-            new CurvePoint(3f, 0.011f),
-            new CurvePoint(4f, 0.014f),
-            new CurvePoint(5f, 0.017f),
-            new CurvePoint(6f, 0.020f)
+            new CurvePoint(0f, 0.0003f),
+            new CurvePoint(1f, 0.0006f),
+            new CurvePoint(2f, 0.0009f),
+            new CurvePoint(3f, 0.0013f),
+            new CurvePoint(4f, 0.0017f),
+            new CurvePoint(5f, 0.0022f),
+            new CurvePoint(6f, 0.0027f)
         };
 
         public override bool DoesProvidesOutcome(Pawn reader)
@@ -38,10 +38,12 @@ namespace EnhancedBeliefs
             {
                 return false;
             }
+
             if (reader.Ideo == null)
             {
                 return false;
             }
+
             if (reader.DevelopmentalStage.Baby())
             {
                 return false;
@@ -72,17 +74,31 @@ namespace EnhancedBeliefs
         public override void PostExposeData()
         {
             base.PostExposeData();
+
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                if (!Find.IdeoManager.IdeosListForReading.Contains(ideo))
+                {
+                    ideo = null;
+                }
+            }
+
             Scribe_References.Look(ref ideo, "ideo");
         }
 
         public override IEnumerable<Dialog_InfoCard.Hyperlink> GetHyperlinks()
         {
+            if (!Find.IdeoManager.IdeosListForReading.Contains(ideo) || ideo == null)
+            {
+                yield break;
+            }
+
             yield return new Dialog_InfoCard.Hyperlink(ideo);
         }
 
         public override string GetBenefitsString(Pawn reader = null)
         {
-            return "{0} - {1} certainty gain per second.".Formatted(ideo, (CertaintyGain(reader) * 100f * GenTicks.TicksPerRealSecond).ToStringPercent());
+            return "{0} - {1} certainty gain per second.".Formatted(ideo, (CertaintyGain(reader) * GenTicks.TicksPerRealSecond).ToStringPercent());
         }
 
         public float CertaintyGain(Pawn reader = null)
@@ -97,7 +113,7 @@ namespace EnhancedBeliefs
                 }
                 else
                 {
-                    certaintyGain = certaintyGain * reader.GetStatValue(StatDefOf.CertaintyLossFactor);
+                    certaintyGain = certaintyGain * reader.GetStatValue(StatDefOf.CertaintyLossFactor) * 0.5f;
                 }
             }
 
@@ -113,11 +129,16 @@ namespace EnhancedBeliefs
                 return;
             }
 
+            if (!Find.IdeoManager.IdeosListForReading.Contains(ideo) || ideo == null)
+            {
+                return;
+            }
+
             float certaintyGain = CertaintyGain(reader) * factor;
 
             if (reader.Ideo == ideo)
             {
-                reader.ideo.Certainty += certaintyGain;
+                reader.ideo.Certainty = Mathf.Clamp01(reader.ideo.Certainty + certaintyGain);
                 return;
             }
 

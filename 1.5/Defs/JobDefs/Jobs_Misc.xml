@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <JobDef>
+        <defName>EB_BurnReligiousBook</defName>
+        <driverClass>EnhancedBeliefs.JobDriver_BurnReligiousBook</driverClass>
+        <reportString>burning TargetA.</reportString>
+    </JobDef>
+
+    <JobDef>
+        <defName>EB_CompleteReligiousBook</defName>
+        <driverClass>EnhancedBeliefs.JobDriver_CompleteReligiousBook</driverClass>
+        <reportString>finishing writing TargetA.</reportString>
+    </JobDef>
+
+    <WorkGiverDef>
+        <defName>EB_WriteReligiousBook</defName>
+        <label>write religious book</label>
+        <giverClass>EnhancedBeliefs.WorkGiver_CompleteReligiousBook</giverClass>
+        <workType>Art</workType>
+        <priorityInType>220</priorityInType>
+        <verb>write</verb>
+        <gerund>writing</gerund>
+        <requiredCapacities>
+            <li>Manipulation</li>
+        </requiredCapacities>
+        <prioritizeSustains>true</prioritizeSustains>
+        <canBeDoneByMechs>false</canBeDoneByMechs>
+    </WorkGiverDef>
+
+</Defs>

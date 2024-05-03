@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <MentalBreakDef>
+        <defName>EB_Iconoclast</defName>
+        <mentalState>EB_Iconoclast</mentalState>
+        <baseCommonality>0.333</baseCommonality>
+        <intensity>Major</intensity>
+    </MentalBreakDef>
+
+    <MentalStateDef ParentName="Tantrum">
+        <defName>EB_Iconoclast</defName>
+        <stateClass>EnhancedBeliefs.MentalState_Iconoclast</stateClass>
+        <workerClass>EnhancedBeliefs.MentalStateWorker_Iconoclast</workerClass>
+        <minTicksBeforeRecovery>40000</minTicksBeforeRecovery>
+        <maxTicksBeforeRecovery>60000</maxTicksBeforeRecovery>
+        <recoveryMtbDays>0.166</recoveryMtbDays>
+        <beginLetter>{0} is having a tantrum.\n\n[PAWN_pronoun] is going try and destroy religious books.</beginLetter>
+    </MentalStateDef>
+
+</Defs>

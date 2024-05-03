@@ -14,6 +14,12 @@ public static class EnhancedBeliefsDefOf
     public static MemeDef Loyalist;
     public static MemeDef Guilty;
     public static MentalStateDef IdeoChange;
+    public static ThingDef EB_UnfinishedIdeobook;
+    public static ThingDef EB_Ideobook;
+    public static JobDef EB_CompleteReligiousBook;
+    public static JobDef EB_BurnReligiousBook;
+    public static ThoughtDef EB_ReligiousBookDestroyed;
+
 
     static EnhancedBeliefsDefOf()
     {

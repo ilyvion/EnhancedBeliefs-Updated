@@ -33,11 +33,11 @@ namespace EnhancedBeliefs
             new CurvePoint(-5f,  -0.01f),
             new CurvePoint(-3f,  -0.005f),
             new CurvePoint(-0,    0f),
-            new CurvePoint(3f,    0.001f),
-            new CurvePoint(5f,    0.003f),
-            new CurvePoint(10f,   0.01f),
-            new CurvePoint(30f,   0.07f),
-            new CurvePoint(50f,   0.15f),
+            new CurvePoint(3f,    0.002f),
+            new CurvePoint(5f,    0.005f),
+            new CurvePoint(10f,   0.012f),
+            new CurvePoint(30f,   0.05f),
+            new CurvePoint(50f,   0.12f),
         };
 
         // Sum relationship value to multiplier - 1. Values are flipped if summary mood offset is negative
@@ -64,10 +64,11 @@ namespace EnhancedBeliefs
 
         public GameComponent_EnhancedBeliefs(Game game) { }
 
-        public void AddTracker(Pawn pawn)
+        public IdeoTrackerData AddTracker(Pawn pawn)
         {
             IdeoTrackerData data = new IdeoTrackerData(pawn);
             pawnTrackerData[pawn] = data;
+            return data;
         }
 
         public void AddIdeoTracker(Ideo ideo)
@@ -77,6 +78,11 @@ namespace EnhancedBeliefs
 
         public void SetIdeo(Pawn pawn, Ideo ideo)
         {
+            if (!pawnTrackerData.ContainsKey(pawn))
+            {
+                AddTracker(pawn);
+            }
+
             List<Ideo> ideoList = ideoPawnsList.Keys.ToList();
 
             for (int i = 0; i < ideoList.Count; i++)
@@ -402,6 +408,12 @@ namespace EnhancedBeliefs
             Scribe_Collections.Look(ref personalIdeoOpinions, "personalIdeoOpinions", LookMode.Reference, LookMode.Value, ref cache2, ref cache6);
             Scribe_Collections.Look(ref memeOpinions, "memeOpinions", LookMode.Reference, LookMode.Value, ref cache3, ref cache7);
             Scribe_Collections.Look(ref preceptOpinions, "preceptOpinions", LookMode.Reference, LookMode.Value, ref cache4, ref cache8);
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+                comp.SetIdeo(pawn, pawn.Ideo);
+            }
         }
 
         // Change pawn's personal opinion of another ideo, usually positively
@@ -437,7 +449,7 @@ namespace EnhancedBeliefs
         }
 
         // Check if pawn should get converted to a new ideo after losing certainty in some way.
-        public ConversionOutcome CheckConversion(Ideo priorityIdeo = null, bool noBreakdown = false, List<Ideo> excludeIdeos = null, List<Ideo> whitelistIdeos = null)
+        public ConversionOutcome CheckConversion(Ideo priorityIdeo = null, bool noBreakdown = false, List<Ideo> excludeIdeos = null, List<Ideo> whitelistIdeos = null, float? opinionThreshold = null)
         {
             if (!ModLister.CheckIdeology("Ideoligion conversion") || pawn.DevelopmentalStage.Baby())
             {
@@ -456,6 +468,12 @@ namespace EnhancedBeliefs
             }
 
             float threshold = certainty <= 0f ? 0.6f : 0.85f; //Drastically lower conversion threshold if we're about to have a breakdown
+
+            if (opinionThreshold.HasValue) // Or if we're already having one
+            {
+                threshold = opinionThreshold.Value;
+            }
+
             float currentOpinion = IdeoOpinion(pawn.Ideo);
             List<Ideo> ideos = whitelistIdeos == null ? Find.IdeoManager.IdeosListForReading : whitelistIdeos;
             ideos.SortBy((Ideo x) => IdeoOpinion(x));
@@ -491,7 +509,7 @@ namespace EnhancedBeliefs
                 }
 
                 // 17% minimal chance of conversion at 20% certrainty and 85% opinion, half that if we're being converted and this is a wrong ideology. Randomly converting to a wrong ideology should be just a rare lol moment
-                if (Rand.Value > (1 - certainty * 4f) * (opinion + (certainty <= 0f ? 0.2f : 0)) * (priorityIdeo != null && priorityIdeo != ideo ? 0.5f : 1f))
+                if (Rand.Value > (1 - certainty * 4f) * (opinion + (certainty <= 0f ? 0.3f : 0)) * ((priorityIdeo != null && priorityIdeo != ideo) ? 0.5f : 1f))
                 {
                     continue;
                 }

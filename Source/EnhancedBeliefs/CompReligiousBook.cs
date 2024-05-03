@@ -1,0 +1,183 @@
+﻿using RimWorld;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using Verse;
+using static Unity.Burst.Intrinsics.X86.Avx;
+
+namespace EnhancedBeliefs
+{
+    [StaticConstructorOnStartup]
+    public class CompReligiousBook : ThingComp
+    {
+        public CompProperties_ReligiousBook Props => props as CompProperties_ReligiousBook;
+        public ReadingOutcomeDoer_CertaintyChange outcome;
+        public Command_Action gizmo;
+        public int lastRecacheTick = -1;
+        public static readonly Texture2D burnBookGizmoTexture = ContentFinder<Texture2D>.Get("UI/Gizmos/Gizmo_BookBurning");
+
+        public static readonly SimpleCurve CertaintyLossFromQualityCurve = new SimpleCurve
+        {
+            new CurvePoint(1, 0.05f),
+            new CurvePoint(2, 0.06f),
+            new CurvePoint(3, 0.07f),
+            new CurvePoint(4, 0.08f),
+            new CurvePoint(5, 0.09f),
+            new CurvePoint(6, 0.10f)
+        };
+
+        public Ideo Ideo
+        {
+            get
+            {
+                if (outcome == null)
+                {
+                    CompBook comp = parent.GetComp<CompBook>();
+
+                    for (int i = 0; i < comp.doers.Count; i++)
+                    {
+                        if (comp.doers[i] is ReadingOutcomeDoer_CertaintyChange change)
+                        {
+                            outcome = change;
+                            break;
+                        }
+                    }
+                }
+
+                return outcome.ideo;
+            }
+        }
+
+        public override void PostDestroy(DestroyMode mode, Map previousMap)
+        {
+            base.PostDestroy(mode, previousMap);
+
+            if (mode == DestroyMode.WillReplace)
+            {
+                return;
+            }
+
+            Find.LetterStack.ReceiveLetter("Religious book destroyed", "{0}, an important religious book for {1}, has been destroyed. Followers of {1} won't be happy about it.".Formatted(parent, Ideo), Find.FactionManager.OfPlayer.ideos.IsPrimary(Ideo) ? LetterDefOf.NegativeEvent : LetterDefOf.NeutralEvent, new LookTargets(new TargetInfo[] { new TargetInfo(parent.PositionHeld, parent.MapHeld) }));
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+            if (!comp.ideoPawnsList.ContainsKey(Ideo))
+            {
+                return;
+            }
+
+            List<Pawn> pawns = comp.GetIdeoPawns(Ideo);
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+
+                if (pawn.Map != previousMap)
+                {
+                    continue;
+                }
+
+                pawn.ideo.Certainty = Mathf.Clamp01(pawn.ideo.Certainty - CertaintyLossFromQualityCurve.Evaluate((int)parent.GetComp<CompQuality>().Quality));
+                pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(EnhancedBeliefsDefOf.EB_ReligiousBookDestroyed);
+                comp.pawnTrackerData[pawn].CheckConversion(excludeIdeos: new List<Ideo> { Ideo });
+            }
+        }
+
+        public override IEnumerable<Gizmo> CompGetGizmosExtra()
+        {
+            foreach (Gizmo gizmo in base.CompGetGizmosExtra())
+            {
+                yield return gizmo;
+            }
+
+            if (gizmo != null && Find.TickManager.TicksGame - lastRecacheTick < GenTicks.TickLongInterval)
+            {
+                if (ValidBurnerPawns().Count == 0)
+                {
+                    gizmo.disabled = true;
+                    gizmo.disabledReason = "No colonists can destroy {0}.".Formatted(parent);
+                }
+                else
+                {
+                    gizmo.disabled = false;
+                    gizmo.disabledReason = null;
+                }
+
+                yield return gizmo;
+                yield break;
+            }
+
+            gizmo = new Command_Action();
+            gizmo.defaultLabel = "Burn {0}".Formatted(parent);
+            gizmo.defaultDesc = "Destroy {0} by burning it. This will upset {1} of {2}".Formatted(parent, Ideo.MemberNamePlural, Ideo);
+
+            List<FloatMenuOption> options = new List<FloatMenuOption>();
+            List<Pawn> burners = ValidBurnerPawns();
+
+            if (burners.Count == 0)
+            {
+                gizmo.disabled = true;
+                gizmo.disabledReason = "No colonists can destroy {0}.".Formatted(parent);
+            }
+            else
+            {
+                gizmo.disabled = false;
+                gizmo.disabledReason = null;
+            }
+
+            for (int i = 0; i <  burners.Count; i++)
+            {
+                Pawn pawn = burners[i];
+                options.Add(new FloatMenuOption(pawn.LabelShort, delegate ()
+                {
+                    Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Are you sure you want to make {0} burn {1}? Doing so will greatly upset all {2} of {3}.".Formatted(pawn, parent, Ideo.MemberNamePlural, Ideo), delegate ()
+                    {
+                        pawn.jobs.StartJob(JobMaker.MakeJob(EnhancedBeliefsDefOf.EB_BurnReligiousBook, parent));
+                    }));
+                }, iconThing: pawn, iconColor: Color.white));
+            }
+
+            gizmo.icon = burnBookGizmoTexture;
+            gizmo.action = delegate ()
+            {
+                Find.WindowStack.Add(new FloatMenu(options));
+            };
+
+            yield return gizmo;
+        }
+
+        public List<Pawn> ValidBurnerPawns()
+        {
+            List<Pawn> pawns = new List<Pawn>();
+            List<Pawn> allPawns = parent.Map.mapPawns.FreeAdultColonistsSpawned;
+
+            for (int i = 0; i < allPawns.Count; i++)
+            {
+                Pawn pawn = allPawns[i];
+
+                if (!pawn.IsColonistPlayerControlled)
+                {
+                    continue;
+                }
+
+                if (pawn.Ideo == Ideo)
+                {
+                    continue;
+                }
+
+                pawns.Add(pawn);
+            }
+
+            return pawns;
+        }
+    }
+
+    public class CompProperties_ReligiousBook : CompProperties
+    {
+        public CompProperties_ReligiousBook()
+        {
+            compClass = typeof(CompReligiousBook);
+        }
+    }
+}

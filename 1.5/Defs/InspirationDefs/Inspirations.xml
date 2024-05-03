@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <InspirationDef>
+        <defName>EB_ReligiousBook</defName>
+        <workerClass>EnhancedBeliefs.InspirationWorker_ReligiousBook</workerClass>
+        <inspirationClass>EnhancedBeliefs.Inspiration_ReligiousBook</inspirationClass>
+        <label>religious enlightenment</label>
+        <baseDurationDays>0</baseDurationDays>
+        <beginLetter>[PAWN_pronoun] had a sudden enlightenment and decided to start writing a religious book.</beginLetter>
+        <beginLetterDef>PositiveEvent</beginLetterDef>
+        <baseInspectLine>Inspired: Religious enlightenment</baseInspectLine>
+        <requiredNonDisabledWorkTags>Artistic</requiredNonDisabledWorkTags>
+        <minAge>10</minAge>
+    </InspirationDef>
+
+</Defs>

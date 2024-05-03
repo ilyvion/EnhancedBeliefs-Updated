@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ThingDef ParentName="BookBase">
+        <defName>EB_Ideobook</defName>
+        <label>religious book</label>
+        <description>A book containing fictional or true stories for the pleasure and edification of the reader.</description>
+        <thingClass>EnhancedBeliefs.BookIdeo</thingClass>
+        <graphicData>
+            <texPath>Things/Item/Book/Ideobook/Ideobook</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>0.8</drawSize>
+        </graphicData>
+        <uiIconPath>Things/Item/Book/Ideobook/Ideobook</uiIconPath>
+        <statBases>
+            <MarketValue>160</MarketValue>
+        </statBases>
+        <comps>
+            <li Class="CompProperties_Book">
+                <nameMaker>Namer_Novel</nameMaker>
+                <descriptionMaker>Description_Novel</descriptionMaker>
+                <ageYearsRange>100~200</ageYearsRange>
+                <openGraphic>
+                    <texPath>Things/Item/Book/Ideobook/Ideobook_Open</texPath>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <drawSize>0.7</drawSize>
+                </openGraphic>
+                <verticalGraphic>
+                    <texPath>Things/Item/Book/Ideobook/Ideobook_Vertical</texPath>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <addTopAltitudeBias>true</addTopAltitudeBias>
+                </verticalGraphic>
+                <doers>
+                    <li Class="EnhancedBeliefs.BookOutcomeProperties_CertaintyChange" />
+                </doers>
+            </li>
+            <li Class="EnhancedBeliefs.CompProperties_ReligiousBook" />
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="UnfinishedBase">
+        <defName>EB_UnfinishedIdeobook</defName>
+        <thingClass>EnhancedBeliefs.UnfinishedReligiousBook</thingClass>
+        <label>unfinished religious book</label>
+        <description>An unfinished religious book which must be completed by a moral guide.</description>
+        <statBases>
+            <Flammability>0.5</Flammability>
+        </statBases>
+        <graphicData>
+            <texPath>Things/Item/Book/Ideobook/Ideobook_Unfinished</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>0.8</drawSize>
+        </graphicData>
+        <stuffCategories Inherit="false" />
+        <modExtensions>
+            <li Class="EnhancedBeliefs.UnfinishedBookExtension">
+                <openGraphic>
+                    <texPath>Things/Item/Book/Ideobook/Ideobook_Open</texPath>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <drawSize>0.7</drawSize>
+                </openGraphic>
+            </li>
+        </modExtensions>
+    </ThingDef>
+
+</Defs>

@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,16 +42,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BookIdeo.cs" />
+    <Compile Include="CompReligiousBook.cs" />
     <Compile Include="EnhancedBeliefsMod.cs" />
     <Compile Include="GameComponent_EnhancedBeliefs.cs" />
     <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="InspirationWorker_ReligiousBook.cs" />
+    <Compile Include="Inspiration_ReligiousBook.cs" />
     <Compile Include="InteractionWorker_AdvancedConversionAttempt.cs" />
     <Compile Include="InteractionWorker_IdeologicalDebatePrecept.cs" />
     <Compile Include="InteractionWorker_IdeologicalDebateMeme.cs" />
+    <Compile Include="JobDriver_BurnReligiousBook.cs" />
+    <Compile Include="JobDriver_CompleteReligiousBook.cs" />
+    <Compile Include="MentalStateWorker_Iconoclast.cs" />
+    <Compile Include="MentalState_Iconoclast.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadingOutcomeDoer_CertaintyChange.cs" />
+    <Compile Include="StockGenerator_IdeoBook.cs" />
     <Compile Include="ThoughtWorker_IdeologyOpinion.cs" />
     <Compile Include="Thought_IdeologyOpinion.cs" />
+    <Compile Include="UnfinishedReligiousBook.cs" />
+    <Compile Include="WorkGiver_CompleteReligiousBook.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -35,14 +35,17 @@ namespace EnhancedBeliefs
             {
                 return 0f;
             }
+
             if (Find.IdeoManager.classicMode)
             {
                 return 0f;
             }
+
             if (initiator.Ideo == null || !recipient.RaceProps.Humanlike || initiator.Ideo == recipient.Ideo)
             {
                 return 0f;
             }
+
             if (recipient.DevelopmentalStage.Baby())
             {
                 return 0f;

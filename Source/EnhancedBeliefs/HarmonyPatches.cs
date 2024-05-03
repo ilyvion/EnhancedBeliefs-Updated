@@ -78,8 +78,12 @@ namespace EnhancedBeliefs
 
             Pawn pawn = __instance.pawn;
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+            IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(pawn);
 
-            IdeoTrackerData data = comp.pawnTrackerData[pawn];
+            if (data == null)
+            {
+                data = comp.AddTracker(pawn);
+            }
 
             // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
             if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > GenDate.TicksPerDay * 3f)
@@ -113,7 +117,15 @@ namespace EnhancedBeliefs
 
             if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(GenTicks.TickLongInterval))
             {
-                Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTrackerData[pawn].RecalculateRelationshipIdeoOpinions();
+                GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+                IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(pawn);
+
+                if (data == null)
+                {
+                    data = comp.AddTracker(pawn);
+                }
+
+                data.RecalculateRelationshipIdeoOpinions();
             }
         }
     }
@@ -283,7 +295,7 @@ namespace EnhancedBeliefs
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             IdeoTrackerData data = comp.pawnTrackerData[pawn];
 
-            if (data.CheckConversion(noBreakdown: true) == ConversionOutcome.Success)
+            if (data.CheckConversion(noBreakdown: true, opinionThreshold: 0.4f) == ConversionOutcome.Success)
             {
                 __instance.newIdeo = pawn.Ideo;
                 __instance.changedIdeo = true;
