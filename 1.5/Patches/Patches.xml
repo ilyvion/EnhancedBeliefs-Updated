@@ -38,7 +38,7 @@
 		</value>
 	</Operation>
 
-	<Operation Class="PatchOperationAdd">
+	<Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Royalty">
 		<xpath>/Defs/TraderKindDef[defName="Empire_Caravan_TraderGeneral"]/stockGenerators</xpath>
 		<value>
 			<li Class="EnhancedBeliefs.StockGenerator_IdeoBook">

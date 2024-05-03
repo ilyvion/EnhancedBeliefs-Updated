@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -47,7 +48,7 @@ namespace EnhancedBeliefs
                 return 0f;
             }
 
-            return 5f;
+            return 5f * Mathf.Sqrt(pawn.GetStatValue(StatDefOf.SocialIdeoSpreadFrequencyFactor));
         }
     }
 }

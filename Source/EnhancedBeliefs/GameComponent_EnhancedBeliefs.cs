@@ -271,15 +271,17 @@ namespace EnhancedBeliefs
 
             float opinion = 30;
 
-            if (ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
+            if (ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist) || pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
             {
                 opinion -= 20;
             }
-            else if (ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist))
+
+            if (ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist) || pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist))
             {
                 opinion -= 10;
             }
-            else if (ideo.HasMeme(EnhancedBeliefsDefOf.Guilty))
+
+            if (ideo.HasMeme(EnhancedBeliefsDefOf.Guilty) || pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Guilty))
             {
                 opinion += 10;
             }
@@ -312,11 +314,6 @@ namespace EnhancedBeliefs
                             opinion -= 10;
                         }
                     }
-                }
-
-                if (memeOpinions.ContainsKey(meme))
-                {
-                    opinion += memeOpinions[meme];
                 }
             }
 
