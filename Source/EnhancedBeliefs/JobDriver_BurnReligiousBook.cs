@@ -16,7 +16,7 @@ namespace EnhancedBeliefs
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(book, job, 1, -1, null, errorOnFailed);
+            return pawn.Reserve(book, job, 1, -1, null, errorOnFailed, true);
         }
 
         public override IEnumerable<Toil> MakeNewToils()

@@ -55,7 +55,7 @@ namespace EnhancedBeliefs
         {
             base.PostDestroy(mode, previousMap);
 
-            if (mode == DestroyMode.WillReplace)
+            if (mode == DestroyMode.WillReplace || previousMap == null)
             {
                 return;
             }
