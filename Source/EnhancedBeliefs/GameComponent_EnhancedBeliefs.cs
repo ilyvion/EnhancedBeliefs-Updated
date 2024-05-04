@@ -256,7 +256,7 @@ namespace EnhancedBeliefs
                 baseIdeoOpinions[ideo] = pawn.ideo.Certainty * 100f;
             }
 
-            return new float[3] { baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f, IdeoOpinionFromRelationships(ideo) / 100f };
+            return [baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f, IdeoOpinionFromRelationships(ideo) / 100f];
         }
 
         // Get pawn's basic opinion from hearing about ideos beliefs, based on their traits, relationships and current ideo
@@ -445,6 +445,54 @@ namespace EnhancedBeliefs
             preceptOpinions[precept] += power * 100f;
         }
 
+        public float TrueMemeOpinion(MemeDef meme)
+        {
+            if (!memeOpinions.ContainsKey(meme))
+            {
+                memeOpinions[meme] = 0;
+            }
+
+            float opinion = memeOpinions[meme];
+
+            if (!meme.agreeableTraits.NullOrEmpty())
+            {
+                for (int j = 0; j < meme.agreeableTraits.Count; j++)
+                {
+                    TraitRequirement trait = meme.agreeableTraits[j];
+
+                    if (trait.HasTrait(pawn))
+                    {
+                        opinion += 10;
+                    }
+                }
+            }
+
+            if (!meme.disagreeableTraits.NullOrEmpty())
+            {
+                for (int j = 0; j < meme.disagreeableTraits.Count; j++)
+                {
+                    TraitRequirement trait = meme.disagreeableTraits[j];
+
+                    if (trait.HasTrait(pawn))
+                    {
+                        opinion -= 10;
+                    }
+                }
+            }
+
+            return opinion;
+        }
+
+        public void RecacheAllBaseOpinions()
+        {
+            List<Ideo> ideoKeys = baseIdeoOpinions.Keys.ToList();
+
+            for (int j = 0; j < ideoKeys.Count; j++)
+            {
+                baseIdeoOpinions[ideoKeys[j]] = DefaultIdeoOpinion(ideoKeys[j]);
+            }
+        }
+
         // Check if pawn should get converted to a new ideo after losing certainty in some way.
         public ConversionOutcome CheckConversion(Ideo priorityIdeo = null, bool noBreakdown = false, List<Ideo> excludeIdeos = null, List<Ideo> whitelistIdeos = null, float? opinionThreshold = null)
         {
@@ -528,12 +576,7 @@ namespace EnhancedBeliefs
                     Find.HistoryEventsManager.RecordEvent(new HistoryEvent(HistoryEventDefOf.ConvertedNewMember, pawn.Named(HistoryEventArgsNames.Doer), ideo.Named(HistoryEventArgsNames.Ideo)));
                 }
 
-                List<Ideo> ideoKeys = baseIdeoOpinions.Keys.ToList();
-
-                for (int j = 0; j < ideoKeys.Count; j++)
-                {
-                    baseIdeoOpinions[ideoKeys[j]] = DefaultIdeoOpinion(ideoKeys[j]);
-                }
+                RecacheAllBaseOpinions();
 
                 return ConversionOutcome.Success;
             }

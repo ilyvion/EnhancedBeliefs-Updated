@@ -150,6 +150,24 @@ namespace EnhancedBeliefs
         }
     }
 
+    [HarmonyPatch(typeof(TraitSet), nameof(TraitSet.GainTrait))]
+    public static class TraitSet_TraitAdded
+    {
+        public static void Postfix(TraitSet __instance)
+        {
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTrackerData?.TryGetValue(__instance.pawn)?.RecacheAllBaseOpinions();
+        }
+    }
+
+    [HarmonyPatch(typeof(TraitSet), nameof(TraitSet.RemoveTrait))]
+    public static class TraitSet_TraitRemoved
+    {
+        public static void Postfix(TraitSet __instance)
+        {
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTrackerData?.TryGetValue(__instance.pawn)?.RecacheAllBaseOpinions();
+        }
+    }
+
     [HarmonyPatch(typeof(SocialCardUtility), nameof(SocialCardUtility.DrawPawnCertainty))]
     public static class SocialCardUtility_DrawCertainty
     {

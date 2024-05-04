@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>/Defs/TraderKindDef[defName="Empire_Caravan_TraderGeneral"]/stockGenerators</xpath>
+		<value>
+			<li Class="EnhancedBeliefs.StockGenerator_IdeoBook">
+				<thingDef>EB_Ideobook</thingDef>
+				<countRange>0~2</countRange>
+			</li>
+		</value>
+	</Operation>
+
+</Patch>
