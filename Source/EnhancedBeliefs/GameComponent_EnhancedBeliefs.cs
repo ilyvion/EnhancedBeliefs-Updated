@@ -403,8 +403,8 @@ namespace EnhancedBeliefs
             Scribe_Values.Look(ref lastPositiveThoughtTick, "lastPositiveThoughtTick");
             Scribe_Collections.Look(ref baseIdeoOpinions, "baseIdeoOpinions", LookMode.Reference, LookMode.Value, ref cache1, ref cache5);
             Scribe_Collections.Look(ref personalIdeoOpinions, "personalIdeoOpinions", LookMode.Reference, LookMode.Value, ref cache2, ref cache6);
-            Scribe_Collections.Look(ref memeOpinions, "memeOpinions", LookMode.Reference, LookMode.Value, ref cache3, ref cache7);
-            Scribe_Collections.Look(ref preceptOpinions, "preceptOpinions", LookMode.Reference, LookMode.Value, ref cache4, ref cache8);
+            Scribe_Collections.Look(ref memeOpinions, "memeOpinions", LookMode.Def, LookMode.Value, ref cache3, ref cache7);
+            Scribe_Collections.Look(ref preceptOpinions, "preceptOpinions", LookMode.Def, LookMode.Value, ref cache4, ref cache8);
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {

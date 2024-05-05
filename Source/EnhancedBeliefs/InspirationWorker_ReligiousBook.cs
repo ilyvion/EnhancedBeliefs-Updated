@@ -48,7 +48,7 @@ namespace EnhancedBeliefs
                 return 0f;
             }
 
-            return 5f * Mathf.Sqrt(pawn.GetStatValue(StatDefOf.SocialIdeoSpreadFrequencyFactor));
+            return 10f * Mathf.Sqrt(pawn.GetStatValue(StatDefOf.SocialIdeoSpreadFrequencyFactor));
         }
     }
 }
