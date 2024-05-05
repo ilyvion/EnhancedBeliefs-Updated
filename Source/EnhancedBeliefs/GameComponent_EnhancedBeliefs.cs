@@ -139,9 +139,11 @@ namespace EnhancedBeliefs
 
         public void BaseOpinionRecache(Ideo ideo)
         {
-            foreach (KeyValuePair<Pawn, IdeoTrackerData> pair in pawnTrackerData)
+            List<Pawn> pawns = pawnTrackerData.Keys.ToList();
+
+            for (int i = 0; i < pawns.Count; i++)
             {
-                pair.Value.baseIdeoOpinions[ideo] = pair.Value.DefaultIdeoOpinion(ideo);
+                pawnTrackerData[pawns[i]].baseIdeoOpinions[ideo] = pawnTrackerData[pawns[i]].DefaultIdeoOpinion(ideo);
             }
         }
 
@@ -222,13 +224,16 @@ namespace EnhancedBeliefs
             pawn.needs.mood.thoughts.GetAllMoodThoughts(thoughts);
             float moodSum = 0;
 
-            for (int i = 0; i < thoughts.Count; i++)
+            if (pawn.needs?.mood?.thoughts != null)
             {
-                Thought thought = thoughts[i];
-
-                if (thought.sourcePrecept != null || thought.def.Worker is ThoughtWorker_Precept)
+                for (int i = 0; i < thoughts.Count; i++)
                 {
-                    moodSum += thought.MoodOffset();
+                    Thought thought = thoughts[i];
+
+                    if (thought.sourcePrecept != null || thought.def.Worker is ThoughtWorker_Precept)
+                    {
+                        moodSum += thought.MoodOffset();
+                    }
                 }
             }
 
@@ -446,6 +451,11 @@ namespace EnhancedBeliefs
 
         public void AdjustMemeOpinion(MemeDef meme, float power)
         {
+            if (memeOpinions == null)
+            {
+                memeOpinions = new Dictionary<MemeDef, float>();
+            }
+
             if (!memeOpinions.ContainsKey(meme))
             {
                 memeOpinions[meme] = 0;
@@ -456,6 +466,11 @@ namespace EnhancedBeliefs
 
         public void AdjustPreceptOpinion(PreceptDef precept, float power)
         {
+            if (preceptOpinions == null)
+            {
+                preceptOpinions = new Dictionary<PreceptDef, float>();
+            }
+
             if (!preceptOpinions.ContainsKey(precept))
             {
                 preceptOpinions[precept] = 0;
