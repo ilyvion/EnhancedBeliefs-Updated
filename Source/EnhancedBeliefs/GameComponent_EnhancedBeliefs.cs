@@ -166,6 +166,18 @@ namespace EnhancedBeliefs
             }
             return ideoPawnsList[ideo];
         }
+
+        public void RemoveTracker(IdeoTrackerData tracker)
+        {
+            foreach (KeyValuePair<Pawn, IdeoTrackerData> pair in pawnTrackerData)
+            {
+                if (pair.Value == tracker)
+                {
+                    pawnTrackerData.Remove(pair.Key);
+                    return;
+                }
+            }
+        }
     }
 
     public class IdeoTrackerData : IExposable
@@ -409,6 +421,13 @@ namespace EnhancedBeliefs
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+
+                if (pawn == null)
+                {
+                    comp.RemoveTracker(this);
+                    return;
+                }
+
                 comp.SetIdeo(pawn, pawn.Ideo);
             }
         }
