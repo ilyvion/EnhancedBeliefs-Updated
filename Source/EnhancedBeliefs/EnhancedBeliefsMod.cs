@@ -39,4 +39,37 @@ namespace EnhancedBeliefs
             harmonyInstance.PatchAll();
         }
     }
+
+    public static class EnhancedBeliefsUtilities
+    {
+        public static List<T> TryGetComps<T>(this Precept precept) where T : PreceptComp
+        {
+            List<T> comps = new List<T>();
+
+            for (int i = 0; i < precept.def.comps.Count; i++)
+            {
+                if (precept.def.comps[i] is T comp)
+                {
+                    comps.Add(comp);
+                }
+            }
+
+            return comps;
+        }
+
+        public static List<T> TryGetComps<T>(this PreceptDef precept) where T : PreceptComp
+        {
+            List<T> comps = new List<T>();
+
+            for (int i = 0; i < precept.comps.Count; i++)
+            {
+                if (precept.comps[i] is T comp)
+                {
+                    comps.Add(comp);
+                }
+            }
+
+            return comps;
+        }
+    }
 }

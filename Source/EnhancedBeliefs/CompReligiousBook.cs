@@ -55,6 +55,7 @@ namespace EnhancedBeliefs
         {
             base.PostDestroy(mode, previousMap);
 
+            // Could have some edge cases but its the only way to prevent pawns from being pissy when a trader leaves with the book
             if (mode == DestroyMode.WillReplace || previousMap == null)
             {
                 return;

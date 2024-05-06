@@ -64,6 +64,7 @@ namespace EnhancedBeliefs
             }
         }
 
+        // Ensure that traders get their book ideo
         public override void PostGeneratedForTrader(TraderKindDef trader, int forTile, Faction forFaction)
         {
             base.PostGeneratedForTrader(trader, forTile, forFaction);
@@ -81,6 +82,7 @@ namespace EnhancedBeliefs
             RegenerateName();
         }
 
+        //Completely copied over from ideo generation code, also generates description
         public void RegenerateName()
         {
             GrammarRequest request = default(GrammarRequest);

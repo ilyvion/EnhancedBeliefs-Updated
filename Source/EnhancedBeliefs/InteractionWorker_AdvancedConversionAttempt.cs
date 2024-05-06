@@ -29,7 +29,7 @@ namespace EnhancedBeliefs
             // Conversion attempts don't actually adjust pawn's personal opinion of their own ideology, but rather certainty directly (aka base value). Initiatior's ideology does get personal opinion adjusted tho.
             // Unlike ideological debates which adjust opinion on specific memes and precepts and may affect multiple ideos at the same time
             // Unlike in vanilla, pawn's personal opinion of initiatior also matters a lot
-            float conversionPower = initiator.GetStatValue(StatDefOf.ConversionPower) * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) *
+            float conversionPower = initiator.GetStatValue(StatDefOf.ConversionPower) * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * comp.ConversionFactor(initiator, recipient) *
                 ConversionUtility.ConversionPowerFactor_MemesVsTraits(initiator, recipient) * ReliquaryUtility.GetRelicConvertPowerFactorForPawn(initiator) *
                 Find.Storyteller.difficulty.CertaintyReductionFactor(initiator, recipient) * (1 + recipient.relations.OpinionOf(initiator) * 0.5f * 0.01f);
 

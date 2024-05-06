@@ -47,7 +47,7 @@ namespace EnhancedBeliefs
 
             UnfinishedReligiousBook book = t as UnfinishedReligiousBook;
 
-            if (book == null || book.Creator != pawn || (book.ideo != pawn.Ideo && book.ideo != null))
+            if (book == null || (book.Creator != null && book.Creator != pawn) || (book.ideo != pawn.Ideo && book.ideo != null))
             {
                 return null;
             }

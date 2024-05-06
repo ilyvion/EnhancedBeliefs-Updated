@@ -64,6 +64,11 @@ namespace EnhancedBeliefs
 
         public GameComponent_EnhancedBeliefs(Game game) { }
 
+        public override void GameComponentTick()
+        {
+            base.GameComponentTick();
+        }
+
         public IdeoTrackerData AddTracker(Pawn pawn)
         {
             IdeoTrackerData data = new IdeoTrackerData(pawn);
@@ -74,6 +79,11 @@ namespace EnhancedBeliefs
         public void AddIdeoTracker(Ideo ideo)
         {
             ideoPawnsList[ideo] = new List<Pawn>();
+        }
+
+        public float ConversionFactor(Pawn initiator, Pawn recipient)
+        {
+            return 1f;
         }
 
         public void SetIdeo(Pawn pawn, Ideo ideo)
@@ -246,7 +256,7 @@ namespace EnhancedBeliefs
         // Form opinion based on memes, personal thoughts and experience with other pawns from that ideo
         public float IdeoOpinion(Ideo ideo)
         {
-            if (!baseIdeoOpinions.ContainsKey(ideo))
+            if (!baseIdeoOpinions.ContainsKey(ideo) || !personalIdeoOpinions.ContainsKey(ideo))
             {
                 baseIdeoOpinions[ideo] = DefaultIdeoOpinion(ideo);
                 personalIdeoOpinions[ideo] = 0;
@@ -261,7 +271,7 @@ namespace EnhancedBeliefs
         }
 
         // Rundown on the function above, for UI reasons
-        public float[] DetailedIdeoOpinion(Ideo ideo)
+        public float[] DetailedIdeoOpinion(Ideo ideo, bool noRelationship = false)
         {
             if (!baseIdeoOpinions.ContainsKey(ideo))
             {
@@ -271,6 +281,12 @@ namespace EnhancedBeliefs
             if (ideo == pawn.Ideo)
             {
                 baseIdeoOpinions[ideo] = pawn.ideo.Certainty * 100f;
+            }
+
+            // In cases where you want to avoid recursion
+            if (noRelationship)
+            {
+                return [baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f];
             }
 
             return [baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f, IdeoOpinionFromRelationships(ideo) / 100f];
@@ -288,17 +304,15 @@ namespace EnhancedBeliefs
 
             float opinion = 30;
 
-            if (ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist) || pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
+            if (pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
             {
                 opinion -= 20;
             }
-
-            if (ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist) || pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist))
+            else if (pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist))
             {
                 opinion -= 10;
             }
-
-            if (ideo.HasMeme(EnhancedBeliefsDefOf.Guilty) || pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Guilty))
+            else if (pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Guilty))
             {
                 opinion += 10;
             }
@@ -334,6 +348,28 @@ namespace EnhancedBeliefs
                 }
             }
 
+            for (int i = 0; i < pawn.Ideo.precepts.Count; i++)
+            {
+                Precept precept = pawn.Ideo.precepts[i];
+                List<PreceptComp_OpinionOffset> comps = precept.TryGetComps<PreceptComp_OpinionOffset>();
+
+                for (int j = 0; j < comps.Count; j++)
+                {
+                    opinion += comps[j].InternalOffset;
+                }
+            }
+
+            for (int i = 0; i < ideo.precepts.Count; i++)
+            {
+                Precept precept = ideo.precepts[i];
+                List<PreceptComp_OpinionOffset> comps = precept.TryGetComps<PreceptComp_OpinionOffset>();
+
+                for (int j = 0; j < comps.Count; j++)
+                {
+                    opinion += comps[j].ExternalOffset + comps[j].GetTraitOpinion(pawn);
+                }
+            }
+
             // -5 opinion per incompatible meme, +5 per shared meme
             opinion -= GameComponent_EnhancedBeliefs.BeliefDifferences(pawnIdeo, ideo) * 5f;
             // Only decrease opinion if we don't like getting converted, shouldn't go the other way
@@ -344,7 +380,7 @@ namespace EnhancedBeliefs
 
         public float PersonalIdeoOpinion(Ideo ideo)
         {
-            if (!baseIdeoOpinions.ContainsKey(ideo))
+            if (!baseIdeoOpinions.ContainsKey(ideo) || !personalIdeoOpinions.ContainsKey(ideo))
             {
                 baseIdeoOpinions[ideo] = DefaultIdeoOpinion(ideo);
                 personalIdeoOpinions[ideo] = 0;
@@ -440,7 +476,7 @@ namespace EnhancedBeliefs
         // Change pawn's personal opinion of another ideo, usually positively
         public void AdjustPersonalOpinion(Ideo ideo, float power)
         {
-            if (!baseIdeoOpinions.ContainsKey(ideo))
+            if (!baseIdeoOpinions.ContainsKey(ideo) || !personalIdeoOpinions.ContainsKey(ideo))
             {
                 baseIdeoOpinions[ideo] = DefaultIdeoOpinion(ideo);
                 personalIdeoOpinions[ideo] = 0;
@@ -512,6 +548,24 @@ namespace EnhancedBeliefs
                         opinion -= 10;
                     }
                 }
+            }
+
+            return opinion;
+        }
+
+        public float TruePreceptOpinion(PreceptDef precept)
+        {
+            if (!preceptOpinions.ContainsKey(precept))
+            {
+                preceptOpinions[precept] = 0;
+            }
+
+            float opinion = preceptOpinions[precept];
+            List<PreceptComp_OpinionOffset> comps = precept.TryGetComps<PreceptComp_OpinionOffset>();
+
+            for (int j = 0; j < comps.Count; j++)
+            {
+                opinion += comps[j].ExternalOffset + comps[j].GetTraitOpinion(pawn);
             }
 
             return opinion;

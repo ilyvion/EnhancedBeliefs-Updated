@@ -371,7 +371,7 @@ namespace EnhancedBeliefs
 
             Scribe_Deep.Look(ref data, "EB_IdeoTrackerData");
 
-            if (Scribe.mode != LoadSaveMode.Saving)
+            if (Scribe.mode != LoadSaveMode.Saving && data != null)
             {
                 comp.pawnTrackerData[__instance] = data;
             }
