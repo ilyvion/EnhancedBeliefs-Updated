@@ -33,9 +33,9 @@ namespace EnhancedBeliefs
             new CurvePoint(-5f,  -0.01f),
             new CurvePoint(-3f,  -0.005f),
             new CurvePoint(-0,    0f),
-            new CurvePoint(3f,    0.002f),
-            new CurvePoint(5f,    0.005f),
-            new CurvePoint(10f,   0.012f),
+            new CurvePoint(3f,    0.003f),
+            new CurvePoint(5f,    0.007f),
+            new CurvePoint(10f,   0.015f),
             new CurvePoint(30f,   0.05f),
             new CurvePoint(50f,   0.12f),
         };

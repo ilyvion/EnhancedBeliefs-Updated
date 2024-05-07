@@ -44,7 +44,7 @@ namespace EnhancedBeliefs
 
             float priorCertainty = recipient.ideo.Certainty;
             recipient.ideo.Certainty = Mathf.Clamp01(recipient.ideo.Certainty - 0.04f * conversionPower);
-            tracker.AdjustPersonalOpinion(newIdeo, 0.06f * conversionPower);
+            tracker.AdjustPersonalOpinion(newIdeo, 0.08f * conversionPower);
 
             float ideoOpinion = tracker.PersonalIdeoOpinion(recipient.Ideo);
             if (ideoOpinion > 0)
