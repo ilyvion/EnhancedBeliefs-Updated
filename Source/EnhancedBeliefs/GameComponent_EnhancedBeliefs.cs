@@ -30,12 +30,12 @@ namespace EnhancedBeliefs
             new CurvePoint(-50f, -0.15f),
             new CurvePoint(-30f, -0.07f),
             new CurvePoint(-10f, -0.03f),
-            new CurvePoint(-5f,  -0.01f),
+            new CurvePoint(-5f,  -0.015f),
             new CurvePoint(-3f,  -0.005f),
             new CurvePoint(-0,    0f),
-            new CurvePoint(3f,    0.003f),
-            new CurvePoint(5f,    0.007f),
-            new CurvePoint(10f,   0.015f),
+            new CurvePoint(3f,    0.005f),
+            new CurvePoint(5f,    0.012f),
+            new CurvePoint(10f,   0.025f),
             new CurvePoint(30f,   0.05f),
             new CurvePoint(50f,   0.12f),
         };
@@ -251,6 +251,12 @@ namespace EnhancedBeliefs
             float relationshipMultiplier = 1 + GameComponent_EnhancedBeliefs.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(pawn.Ideo) / 0.02f) * Math.Sign(moodCertaintyOffset);
 
             cachedCertaintyChange += moodCertaintyOffset * relationshipMultiplier;
+
+            // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
+            if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - lastPositiveThoughtTick > GenDate.TicksPerDay * 3f)
+            {
+                cachedCertaintyChange -= GameComponent_EnhancedBeliefs.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - lastPositiveThoughtTick) / GenDate.TicksPerDay);
+            }
         }
 
         // Form opinion based on memes, personal thoughts and experience with other pawns from that ideo
@@ -386,7 +392,7 @@ namespace EnhancedBeliefs
                 personalIdeoOpinions[ideo] = 0;
             }
 
-            float opinion = personalIdeoOpinions[ideo];
+            float opinion = 0;
 
             for (int i = 0; i < ideo.memes.Count; i++)
             {
@@ -407,7 +413,18 @@ namespace EnhancedBeliefs
                 }
             }
 
-            return opinion;
+            // Makes sure that pawn's personal opinion cannot go below/above 100% purely from circlejerking
+            float curOpinion = Mathf.Clamp(baseIdeoOpinions[ideo] + opinion, 0, 100);
+            if (personalIdeoOpinions[ideo] > 100f - curOpinion)
+            {
+                personalIdeoOpinions[ideo] = 100f - curOpinion;
+            }
+            else if (personalIdeoOpinions[ideo] < -curOpinion)
+            {
+                personalIdeoOpinions[ideo] = -curOpinion;
+            }
+
+            return opinion + personalIdeoOpinions[ideo];
         }
 
         public float IdeoOpinionFromRelationships(Ideo ideo)

@@ -85,12 +85,6 @@ namespace EnhancedBeliefs
                 data = comp.AddTracker(pawn);
             }
 
-            // Certainty only starts decreasing at moods below stellar and after 3 days of lacking positive precept moodlets
-            if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.lastPositiveThoughtTick > GenDate.TicksPerDay * 3f)
-            {
-                __result -= GameComponent_EnhancedBeliefs.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.lastPositiveThoughtTick) / GenDate.TicksPerDay);
-            }
-
             // 4 recaches per second should be enough
             if (data.cachedCertaintyChange == -9999f || pawn.IsHashIntervalTick(GenTicks.TickRareInterval))
             {
@@ -115,7 +109,7 @@ namespace EnhancedBeliefs
         {
             Pawn pawn = __instance.pawn;
 
-            if (!pawn.Destroyed && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(GenTicks.TickLongInterval))
+            if (!pawn.Destroyed && pawn.Map != null && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(GenTicks.TickLongInterval))
             {
                 GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
                 IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(pawn);
