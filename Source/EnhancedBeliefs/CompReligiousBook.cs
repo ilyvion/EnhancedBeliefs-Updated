@@ -18,6 +18,8 @@ namespace EnhancedBeliefs
         public Command_Action gizmo;
         public int lastRecacheTick = -1;
         public static readonly Texture2D burnBookGizmoTexture = ContentFinder<Texture2D>.Get("UI/Gizmos/Gizmo_BookBurning");
+        public int lastDamageTick = -1;
+        public Pawn lastDamageInsigator;
 
         public static readonly SimpleCurve CertaintyLossFromQualityCurve = new SimpleCurve
         {
@@ -55,10 +57,35 @@ namespace EnhancedBeliefs
         {
             base.PostDestroy(mode, previousMap);
 
-            // Could have some edge cases but its the only way to prevent pawns from being pissy when a trader leaves with the book
-            if (mode == DestroyMode.WillReplace || previousMap == null)
+            // Could have some edge cases but its the only way to prevent pawns from being pissy when a trader leaves with a book
+            if (mode == DestroyMode.WillReplace || (previousMap == null && lastDamageTick != Find.TickManager.TicksGame))
             {
                 return;
+            }
+
+            if (lastDamageTick == Find.TickManager.TicksGame && lastDamageInsigator != null)
+            {
+                Find.HistoryEventsManager.RecordEvent(new HistoryEvent(EnhancedBeliefsDefOf.EB_BookDestroyed, lastDamageInsigator.Named(HistoryEventArgsNames.Doer)), canApplySelfTookThoughts: false);
+
+                if (lastDamageInsigator.Ideo != null)
+                {
+                    List<Precept> preceptsListForReading = lastDamageInsigator.Ideo.PreceptsListForReading;
+                    for (int i = 0; i < preceptsListForReading.Count; i++)
+                    {
+                        List<PreceptComp> comps = preceptsListForReading[i].def.comps;
+                        for (int j = 0; j < comps.Count; j++)
+                        {
+                            if (comps[j] is PreceptComp_SelfTookMemoryThought preceptComp && (preceptComp.eventDef == EnhancedBeliefsDefOf.EB_DestroyedReligiousBook || preceptComp.eventDef == EnhancedBeliefsDefOf.EB_BookDestroyed))
+                            {
+                                lastDamageInsigator.needs.mood.thoughts.memories.TryGainMemory(preceptComp.thought, sourcePrecept: preceptsListForReading[i]);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Find.HistoryEventsManager.RecordEvent(new HistoryEvent(EnhancedBeliefsDefOf.EB_BookDestroyed));
             }
 
             Find.LetterStack.ReceiveLetter("Religious book destroyed", "{0}, an important religious book for {1}, has been destroyed. Followers of {1} won't be happy about it.".Formatted(parent, Ideo), Find.FactionManager.OfPlayer.ideos.IsPrimary(Ideo) ? LetterDefOf.NegativeEvent : LetterDefOf.NeutralEvent, new LookTargets(new TargetInfo[] { new TargetInfo(parent.PositionHeld, parent.MapHeld) }));
@@ -83,6 +110,13 @@ namespace EnhancedBeliefs
                 pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(EnhancedBeliefsDefOf.EB_ReligiousBookDestroyed);
                 comp.pawnTrackerData[pawn].CheckConversion(excludeIdeos: new List<Ideo> { Ideo });
             }
+        }
+
+        public override void PostPostApplyDamage(DamageInfo dinfo, float totalDamageDealt)
+        {
+            base.PostPostApplyDamage(dinfo, totalDamageDealt);
+            lastDamageTick = Find.TickManager.TicksGame;
+            lastDamageInsigator = dinfo.Instigator as Pawn;
         }
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()

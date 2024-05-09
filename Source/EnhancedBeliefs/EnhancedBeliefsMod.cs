@@ -19,6 +19,8 @@ public static class EnhancedBeliefsDefOf
     public static JobDef EB_CompleteReligiousBook;
     public static JobDef EB_BurnReligiousBook;
     public static ThoughtDef EB_ReligiousBookDestroyed;
+    public static HistoryEventDef EB_DestroyedReligiousBook;
+    public static HistoryEventDef EB_BookDestroyed;
 
 
     static EnhancedBeliefsDefOf()

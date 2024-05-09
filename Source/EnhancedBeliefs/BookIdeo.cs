@@ -69,17 +69,32 @@ namespace EnhancedBeliefs
         {
             base.PostGeneratedForTrader(trader, forTile, forFaction);
 
-            if (forFaction == null || forFaction.ideos == null)
-            {
-                return;
-            }
 
             if (Ideo == null)
             {
-                Ideo = forFaction.ideos.PrimaryIdeo;
+                if (forFaction == null || forFaction.ideos == null)
+                {
+                    Ideo = Find.IdeoManager.IdeosListForReading.RandomElement();
+                }
+                else
+                {
+                    Ideo = forFaction.ideos.PrimaryIdeo;
+                }
             }
 
             RegenerateName();
+        }
+
+        // Checks for null ideos in case something goes wrong
+        public override void TickRare()
+        {
+            base.TickRare();
+
+            if (Ideo == null)
+            {
+                Ideo = Find.IdeoManager.IdeosListForReading.RandomElement();
+                RegenerateName();
+            }
         }
 
         //Completely copied over from ideo generation code, also generates description

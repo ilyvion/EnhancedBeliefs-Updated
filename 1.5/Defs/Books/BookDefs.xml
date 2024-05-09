@@ -6,6 +6,7 @@
         <label>religious book</label>
         <description>A book containing fictional or true stories for the pleasure and edification of the reader.</description>
         <thingClass>EnhancedBeliefs.BookIdeo</thingClass>
+        <tickerType>Rare</tickerType>
         <graphicData>
             <texPath>Things/Item/Book/Ideobook/Ideobook</texPath>
             <graphicClass>Graphic_Single</graphicClass>
@@ -62,5 +63,15 @@
             </li>
         </modExtensions>
     </ThingDef>
+
+    <HistoryEventDef>
+        <defName>EB_DestroyedReligiousBook</defName>
+        <label>destroyed religious book</label>
+    </HistoryEventDef>
+
+    <HistoryEventDef>
+        <defName>EB_BookDestroyed</defName>
+        <label>religious book was destroyed</label>
+    </HistoryEventDef>
 
 </Defs>
