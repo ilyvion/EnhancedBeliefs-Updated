@@ -14,7 +14,7 @@ namespace EnhancedBeliefs
         public int internalOffset = 0;
         public List<TraitRequirement> agreeableTraits;
         public List<TraitRequirement> disagreeableTraits;
-        public float opinionPerTrait = 5f;
+        public float opinionPerTrait = 1f;
 
         public virtual int ExternalOffset
         {

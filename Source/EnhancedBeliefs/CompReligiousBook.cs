@@ -116,7 +116,14 @@ namespace EnhancedBeliefs
         {
             base.PostPostApplyDamage(dinfo, totalDamageDealt);
             lastDamageTick = Find.TickManager.TicksGame;
-            lastDamageInsigator = dinfo.Instigator as Pawn;
+            if (dinfo.Instigator != null)
+            {
+                lastDamageInsigator = dinfo.Instigator as Pawn;
+            }
+            else
+            {
+                lastDamageInsigator = null;
+            }
         }
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
