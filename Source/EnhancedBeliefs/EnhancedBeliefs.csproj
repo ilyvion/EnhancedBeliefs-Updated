@@ -1,86 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{66F4796A-2131-48D5-AE5A-5B930613E09D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EnhancedBeliefs</RootNamespace>
-    <AssemblyName>EnhancedBeliefs</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <LangVersion>7</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\1.5\Assemblies\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\..\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BookIdeo.cs" />
-    <Compile Include="CompReligiousBook.cs" />
-    <Compile Include="EnhancedBeliefsMod.cs" />
-    <Compile Include="GameComponent_EnhancedBeliefs.cs" />
-    <Compile Include="HarmonyPatches.cs" />
-    <Compile Include="InspirationWorker_ReligiousBook.cs" />
-    <Compile Include="Inspiration_ReligiousBook.cs" />
-    <Compile Include="InteractionWorker_AdvancedConversionAttempt.cs" />
-    <Compile Include="InteractionWorker_IdeologicalDebatePrecept.cs" />
-    <Compile Include="InteractionWorker_IdeologicalDebateMeme.cs" />
-    <Compile Include="JobDriver_BurnReligiousBook.cs" />
-    <Compile Include="JobDriver_CompleteReligiousBook.cs" />
-    <Compile Include="MentalStateWorker_Iconoclast.cs" />
-    <Compile Include="MentalState_Iconoclast.cs" />
-    <Compile Include="PreceptComp_OpinionOffset.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadingOutcomeDoer_CertaintyChange.cs" />
-    <Compile Include="StockGenerator_IdeoBook.cs" />
-    <Compile Include="ThoughtWorker_IdeologyOpinion.cs" />
-    <Compile Include="Thought_IdeologyOpinion.cs" />
-    <Compile Include="UnfinishedReligiousBook.cs" />
-    <Compile Include="WorkGiver_CompleteReligiousBook.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <PackageReference Include="Krafs.Publicizer">
-      <Version>2.*</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>1.5.4061</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Publicize Include="Assembly-CSharp" />
-  </ItemGroup>
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<Authors>SmArtKar</Authors>
+
+		<TargetFramework>net48</TargetFramework>
+
+		<LangVersion>preview</LangVersion> 
+
+		<OutDir>..\..\1.5\Assemblies\</OutDir>
+
+		<!-- <Nullable>enable</Nullable> --> 
+
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<Optimize>true</Optimize>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>preview-recommended</AnalysisLevel>
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>portable</DebugType>
+		<ErrorReport>prompt</ErrorReport>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<WarningLevel>5</WarningLevel>
+		<NoWarn>CA1000;CA1051;CA1305;CA1310;CA1707;CA1708;CA1711;CA1725;CA1852;CA2201</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*"/>
+
+		<PackageReference Include="Lib.Harmony" Version="2.*" ExcludeAssets="runtime"/>
+
+		<PackageReference Include="PolySharp" Version="1.*" />
+
+		<PackageReference Include="Krafs.Publicizer" Version="2.*"/>
+		<Publicize Include="Assembly-CSharp"/>
+
+		<!-- <PackageReference Include="Zetrith.Prepatcher" Version="1.*" /> -->
+	</ItemGroup>
 </Project>

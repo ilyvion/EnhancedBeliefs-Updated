@@ -1,68 +1,73 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\EnhancedBeliefs\\Source\\EnhancedBeliefs\\EnhancedBeliefs.csproj": {}
+    "/home/smartkar/.local/share/Steam/steamapps/common/RimWorld/Mods/EnhancedBeliefs/Source/EnhancedBeliefs/EnhancedBeliefs.csproj": {}
   },
   "projects": {
-    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\EnhancedBeliefs\\Source\\EnhancedBeliefs\\EnhancedBeliefs.csproj": {
+    "/home/smartkar/.local/share/Steam/steamapps/common/RimWorld/Mods/EnhancedBeliefs/Source/EnhancedBeliefs/EnhancedBeliefs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\EnhancedBeliefs\\Source\\EnhancedBeliefs\\EnhancedBeliefs.csproj",
+        "projectUniqueName": "/home/smartkar/.local/share/Steam/steamapps/common/RimWorld/Mods/EnhancedBeliefs/Source/EnhancedBeliefs/EnhancedBeliefs.csproj",
         "projectName": "EnhancedBeliefs",
-        "projectPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\EnhancedBeliefs\\Source\\EnhancedBeliefs\\EnhancedBeliefs.csproj",
-        "packagesPath": "C:\\Users\\Artemy\\.nuget\\packages\\",
-        "outputPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\EnhancedBeliefs\\Source\\EnhancedBeliefs\\obj\\",
+        "projectPath": "/home/smartkar/.local/share/Steam/steamapps/common/RimWorld/Mods/EnhancedBeliefs/Source/EnhancedBeliefs/EnhancedBeliefs.csproj",
+        "packagesPath": "/home/smartkar/.nuget/packages/",
+        "outputPath": "/home/smartkar/.local/share/Steam/steamapps/common/RimWorld/Mods/EnhancedBeliefs/Source/EnhancedBeliefs/obj/",
         "projectStyle": "PackageReference",
-        "skipContentFileWrite": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Artemy\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/home/smartkar/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net472"
+          "net48"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net472": {
+          "net48": {
+            "targetAlias": "net48",
             "projectReferences": {}
           }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
-        "net472": {
+        "net48": {
+          "targetAlias": "net48",
           "dependencies": {
             "Krafs.Publicizer": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
               "target": "Package",
               "version": "[2.*, )"
             },
             "Krafs.Rimworld.Ref": {
               "target": "Package",
-              "version": "[1.5.4061, )"
+              "version": "[1.5.*, )"
+            },
+            "Lib.Harmony": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[2.*, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "PolySharp": {
+              "target": "Package",
+              "version": "[1.*, )"
             }
-          }
-        }
-      },
-      "runtimes": {
-        "win": {
-          "#import": []
-        },
-        "win-arm64": {
-          "#import": []
-        },
-        "win-x64": {
-          "#import": []
-        },
-        "win-x86": {
-          "#import": []
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.302/RuntimeIdentifierGraph.json"
         }
       }
     }

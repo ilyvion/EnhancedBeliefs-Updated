@@ -217,6 +217,40 @@ namespace EnhancedBeliefs
         private List<float> cache7;
         private List<float> cache8;
 
+        public float cachedOpinionMultiplier = -1f;
+        public int lastMultiplierCacheTick = -1;
+
+        public float OpinionMultiplier
+        {
+            get
+            {
+                if (cachedOpinionMultiplier >= 0f && Find.TickManager.TicksGame - 2000 > lastMultiplierCacheTick)
+                {
+                    return cachedOpinionMultiplier;
+                }
+
+                cachedOpinionMultiplier = 1f;
+                lastMultiplierCacheTick = Find.TickManager.TicksGame;
+
+                if (pawn.story == null || pawn.story.traits == null)
+                {
+                    return cachedOpinionMultiplier;
+                }
+
+                for (int i = 0; i < pawn.story.traits.allTraits.Count; i++)
+                {
+                    IdeoTraitExtension ext = pawn.story.traits.allTraits[i].def.GetModExtension<IdeoTraitExtension>();
+
+                    if (ext != null)
+                    {
+                        cachedOpinionMultiplier *= ext.opinionMultiplier;
+                    }
+                }
+
+                return cachedOpinionMultiplier;
+            }
+        }
+
         public IdeoTrackerData()
         {
 
@@ -309,7 +343,7 @@ namespace EnhancedBeliefs
                 return pawn.ideo.Certainty * 100f;
             }
 
-            float opinion = 30;
+            float opinion = 0;
 
             if (pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
             {
@@ -381,8 +415,10 @@ namespace EnhancedBeliefs
             opinion -= GameComponent_EnhancedBeliefs.BeliefDifferences(pawnIdeo, ideo) * 5f;
             // Only decrease opinion if we don't like getting converted, shouldn't go the other way
             opinion *= Mathf.Clamp01(pawn.GetStatValue(StatDefOf.CertaintyLossFactor));
+            opinion *= OpinionMultiplier;
 
-            return Mathf.Clamp(opinion, 0, 100);
+            // 30 base opinion
+            return Mathf.Clamp(opinion + 30f, 0, 100);
         }
 
         public float PersonalIdeoOpinion(Ideo ideo)
@@ -425,7 +461,7 @@ namespace EnhancedBeliefs
                 personalIdeoOpinions[ideo] = -curOpinion;
             }
 
-            return opinion + personalIdeoOpinions[ideo];
+            return (opinion + personalIdeoOpinions[ideo]) * OpinionMultiplier;
         }
 
         public float IdeoOpinionFromRelationships(Ideo ideo)
@@ -435,7 +471,7 @@ namespace EnhancedBeliefs
                 CacheRelationshipIdeoOpinion(ideo);
             }
 
-            return cachedRelationshipIdeoOpinions[ideo];
+            return cachedRelationshipIdeoOpinions[ideo] * OpinionMultiplier;
         }
 
         // Calculates ideo opinion offset based on how much pawn likes other pawns of other ideos, should have little weight overall
@@ -667,6 +703,7 @@ namespace EnhancedBeliefs
                     continue;
                 }
 
+                bool oldIdeoContains = pawn.ideo.PreviousIdeos.Contains(ideo);
                 Ideo oldIdeo = pawn.Ideo;
                 pawn.ideo.SetIdeo(ideo);
                 ideo.Notify_MemberGainedByConversion();
@@ -679,7 +716,7 @@ namespace EnhancedBeliefs
                 // Keep current opinion of our old ideo by moving difference between new base and old base (certainty) into personal thoughts
                 AdjustPersonalOpinion(oldIdeo, certainty - DetailedIdeoOpinion(oldIdeo)[0]);
 
-                if (!pawn.ideo.PreviousIdeos.Contains(ideo))
+                if (!oldIdeoContains)
                 {
                     Find.HistoryEventsManager.RecordEvent(new HistoryEvent(HistoryEventDefOf.ConvertedNewMember, pawn.Named(HistoryEventArgsNames.Doer), ideo.Named(HistoryEventArgsNames.Ideo)));
                 }
@@ -697,6 +734,31 @@ namespace EnhancedBeliefs
             // Oops
             pawn.mindState.mentalStateHandler.TryStartMentalState(EnhancedBeliefsDefOf.IdeoChange);
             return ConversionOutcome.Breakdown;
+        }
+
+        public bool OverrideConversionAttempt(float certaintyReduction, Ideo newIdeo, bool applyCertaintyFactor = true)
+        {
+            if (Find.IdeoManager.classicMode || pawn.ideo == null || pawn.DevelopmentalStage.Baby())
+            {
+                return false;
+            }
+
+            float num = Mathf.Clamp01(pawn.ideo.Certainty + (applyCertaintyFactor ? pawn.ideo.ApplyCertaintyChangeFactor(0f - certaintyReduction) : (0f - certaintyReduction)));
+
+            if (pawn.Spawned)
+            {
+                string text = "Certainty".Translate() + "\n" + pawn.ideo.Certainty.ToStringPercent() + " -> " + num.ToStringPercent();
+                MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, text, 8f);
+            }
+
+            float ideoOpinion = PersonalIdeoOpinion(pawn.Ideo);
+
+            if (ideoOpinion > 0)
+            {
+                AdjustPersonalOpinion(pawn.Ideo, Math.Max(ideoOpinion * -0.01f, -0.25f * certaintyReduction));
+            }
+
+            return CheckConversion(newIdeo) == ConversionOutcome.Success;
         }
     }
 

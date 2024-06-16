@@ -200,6 +200,8 @@ namespace EnhancedBeliefs
     {
         public static Rect hoverRect;
         public static bool opinionMenuOpen = false;
+        public static Vector2 scroll;
+        public const int maxIdeosPreview = 10;
 
         public static void Postfix(Rect rect, Pawn pawn)
         {
@@ -246,12 +248,19 @@ namespace EnhancedBeliefs
                 maxNameWidth = Math.Max(maxNameWidth, Text.CalcSize(Find.IdeoManager.ideos[i].name).x);
             }
 
-            Rect opinionRect = new Rect(containerRect.x, containerRect.y + 40f, 264f + maxNameWidth, Find.IdeoManager.ideos.Count * 38f + 8f);
+            Rect opinionRect = new Rect(containerRect.x, containerRect.y + 40f, 264f + maxNameWidth, Math.Min(Find.IdeoManager.ideos.Count, maxIdeosPreview) * 38f + 8f);
+
             Rect tabRect = opinionRect.ContractedBy(4f);
+            tabRect.height = Find.IdeoManager.ideos.Count * 38f;
             hoverRect = new Rect(opinionRect.x, opinionRect.y - 8f, opinionRect.width, opinionRect.height + 8f);
 
             Widgets.DrawShadowAround(opinionRect);
             Widgets.DrawWindowBackground(opinionRect);
+
+            if (Find.IdeoManager.ideos.Count > maxIdeosPreview)
+            {
+                Widgets.BeginScrollView(opinionRect, ref scroll, tabRect, false);
+            }
 
             for (int i = 0; i < Find.IdeoManager.ideos.Count; i++)
             {
@@ -288,6 +297,11 @@ namespace EnhancedBeliefs
 
                     TooltipHandler.TipRegion(tooltipRect, () => tip.Resolve(), 10218220);
                 }
+            }
+
+            if (Find.IdeoManager.ideos.Count > maxIdeosPreview)
+            {
+                Widgets.EndScrollView();
             }
         }
     }
@@ -369,6 +383,19 @@ namespace EnhancedBeliefs
             {
                 comp.pawnTrackerData[__instance] = data;
             }
+        }
+    }
+
+    // Debates use meme/precept symbol instead for their motes
+    [HarmonyPatch(typeof(Pawn_IdeoTracker), nameof(Pawn_IdeoTracker.IdeoConversionAttempt))]
+    public static class IdeoTracker_ConversionAttempt
+    {
+        public static bool Prefix(Pawn_IdeoTracker __instance, float certaintyReduction, Ideo initiatorIdeo, bool applyCertaintyFactor, ref bool __result)
+        {
+            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+            IdeoTrackerData data = comp.pawnTrackerData[__instance.pawn];
+            __result = data.OverrideConversionAttempt(certaintyReduction, initiatorIdeo, applyCertaintyFactor);
+            return false;
         }
     }
 }
