@@ -102,8 +102,12 @@ namespace EnhancedBeliefs
         }
     }
 
+#if v1_5
     [HarmonyPatch(typeof(Pawn_IdeoTracker), nameof(Pawn_IdeoTracker.IdeoTrackerTick))]
-    public static class IdeoTracker_Tick
+#else
+    [HarmonyPatch(typeof(Pawn_IdeoTracker), nameof(Pawn_IdeoTracker.IdeoTrackerTickInterval))]
+#endif
+    public static class IdeoTracker_TickInterval
     {
         public static void Postfix(Pawn_IdeoTracker __instance)
         {

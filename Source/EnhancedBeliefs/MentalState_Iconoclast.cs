@@ -14,7 +14,11 @@ namespace EnhancedBeliefs
         public int booksLeft = -1;
         private static List<Thing> tmpThings = new List<Thing>();
 
+#if v1_5
         public override void MentalStateTick()
+#else
+        public override void MentalStateTick(int delta)
+#endif
         {
             if (booksLeft <= 0)
             {
@@ -47,7 +51,11 @@ namespace EnhancedBeliefs
                 Messages.Message("MessageTargetedTantrumChangedTarget".Translate(pawn.LabelShort, thing.Label, target.Label, pawn.Named("PAWN"), thing.Named("OLDTARGET"), target.Named("TARGET")).AdjustedFor(pawn), pawn, MessageTypeDefOf.NegativeEvent);
             }
 
+#if v1_5
             base.MentalStateTick();
+#else
+            base.MentalStateTick(delta);
+#endif
         }
 
         public override void PostStart(string reason)

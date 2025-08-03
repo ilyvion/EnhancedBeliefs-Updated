@@ -3,36 +3,71 @@
 	<PropertyGroup>
 		<Authors>SmArtKar</Authors>
 
-		<TargetFramework>net48</TargetFramework>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net481</TargetFramework>
+		<PlatformTarget>x64</PlatformTarget>
+		<LangVersion>12.0</LangVersion>
+		<Nullable>disable</Nullable>
 
-		<LangVersion>preview</LangVersion> 
-
-		<OutDir>..\..\1.5\Assemblies\</OutDir>
-
-		<!-- <Nullable>enable</Nullable> --> 
-
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<Optimize>true</Optimize>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
-		<AnalysisLevel>preview-recommended</AnalysisLevel>
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>portable</DebugType>
+		<AnalysisLevel>preview-all</AnalysisLevel>
 		<ErrorReport>prompt</ErrorReport>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<WarningLevel>5</WarningLevel>
+
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
 		<NoWarn>CA1000;CA1051;CA1305;CA1310;CA1707;CA1708;CA1711;CA1725;CA1852;CA2201</NoWarn>
+
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<OutputPath>../../$(RimWorldVersion)/Assemblies</OutputPath>
+		<DebugType>portable</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition="'$(RimWorldVersion)' == '1.6'">
+			<PropertyGroup>
+				<DefineConstants>$(DefineConstants);v1_6</DefineConstants>
+			</PropertyGroup>
+			<ItemGroup>
+				<PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*">
+					<ExcludeAssets>runtime</ExcludeAssets>
+				</PackageReference>
+				<PackageReference Include="Lib.Harmony" Version="2.3.6">
+					<ExcludeAssets>runtime</ExcludeAssets>
+				</PackageReference>
+			</ItemGroup>
+		</When>
+		<When Condition="'$(RimWorldVersion)' == '1.5'">
+			<PropertyGroup>
+				<DefineConstants>$(DefineConstants);v1_5</DefineConstants>
+			</PropertyGroup>
+			<ItemGroup>
+				<PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
+					<ExcludeAssets>runtime</ExcludeAssets>
+				</PackageReference>
+				<PackageReference Include="Lib.Harmony" Version="[2.3.3]">
+					<ExcludeAssets>runtime</ExcludeAssets>
+				</PackageReference>
+			</ItemGroup>
+		</When>
+	</Choose>
+
 	<ItemGroup>
-		<PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*"/>
-
-		<PackageReference Include="Lib.Harmony" Version="2.*" ExcludeAssets="runtime"/>
-
 		<PackageReference Include="PolySharp" Version="1.*" />
 
-		<PackageReference Include="Krafs.Publicizer" Version="2.*"/>
-		<Publicize Include="Assembly-CSharp"/>
-
-		<!-- <PackageReference Include="Zetrith.Prepatcher" Version="1.*" /> -->
+		<PackageReference Include="Krafs.Publicizer" Version="2.*" />
+		<Publicize Include="Assembly-CSharp" />
 	</ItemGroup>
 </Project>

@@ -88,7 +88,11 @@ namespace EnhancedBeliefs
 
             toil.tickAction = delegate
             {
+#if v1_5
                 pawn.GainComfortFromCellIfPossible();
+#else
+                pawn.GainComfortFromCellIfPossible(1);
+#endif
 
                 if (!pawn.Downed)
                 {

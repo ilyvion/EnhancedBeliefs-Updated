@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,11 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
+#if v1_5
+using PlanetTile = int;
+#endif
+
 namespace EnhancedBeliefs
 {
     public class StockGenerator_IdeoBook : StockGenerator_SingleDef
     {
-        public override IEnumerable<Thing> GenerateThings(int forTile, Faction faction = null)
+        public override IEnumerable<Thing> GenerateThings(PlanetTile forTile, Faction faction = null)
         {
             foreach (Book book in StockGeneratorUtility.TryMakeForStock(thingDef, RandomCountOf(thingDef), faction))
             {

@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      # This will only run the release workflow when it's tagged with a version
+      # tag.
+      - "v*"
+
+jobs:
+  build:
+    uses: ilyvion/rimworld-utils/.github/workflows/build_mod.yml@main
+    with:
+      mod_name: "EnhancedBeliefs-Updated"
+      rw_versions: |-
+        1.5
+        1.6
+      extra_files: |-
+        Royalty
+      artifact_suffix: Release
+
+  release:
+    needs: build
+    uses: ilyvion/rimworld-utils/.github/workflows/release_mod.yml@main
+    secrets: inherit
+    with:
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
+      mod_name: "EnhancedBeliefs-Updated"
+      rw_versions: |-
+        1.5
+        1.6
+      upload_to_steam: false # we can't do it automatically the first time

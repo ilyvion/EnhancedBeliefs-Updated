@@ -1,5 +1,4 @@
-﻿using Mono.Unix.Native;
-using RimWorld;
+﻿using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,12 @@ using Verse;
 using static RimWorld.IdeoDescriptionUtility;
 using Verse.Grammar;
 using static RimWorld.IdeoFoundation_Deity;
+
+#if v1_5
+using PlanetTile = int;
+#else
+using RimWorld.Planet;
+#endif
 
 namespace EnhancedBeliefs
 {
@@ -65,7 +70,7 @@ namespace EnhancedBeliefs
         }
 
         // Ensure that traders get their book ideo
-        public override void PostGeneratedForTrader(TraderKindDef trader, int forTile, Faction forFaction)
+        public override void PostGeneratedForTrader(TraderKindDef trader, PlanetTile forTile, Faction forFaction)
         {
             base.PostGeneratedForTrader(trader, forTile, forFaction);
 
@@ -134,8 +139,8 @@ namespace EnhancedBeliefs
             title = GenText.CapitalizeAsTitle(GrammarResolver.Resolve("r_ideoName", request, null, false, null, null, null, true));
 
             List<IdeoDescriptionMaker.PatternEntry> patterns = (from entry in Ideo.memes.Where((MemeDef meme) => meme.descriptionMaker?.patterns != null).SelectMany((MemeDef meme) => meme.descriptionMaker.patterns)
-                                                            group entry by entry.def into grp
-                                                            select grp.MaxBy((IdeoDescriptionMaker.PatternEntry entry) => entry.weight)).ToList();
+                                                                group entry by entry.def into grp
+                                                                select grp.MaxBy((IdeoDescriptionMaker.PatternEntry entry) => entry.weight)).ToList();
             if (!list.Any())
             {
                 return;
