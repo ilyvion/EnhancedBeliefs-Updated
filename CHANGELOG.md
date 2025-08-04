@@ -21,5 +21,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Project layout changed to match how ilyvion works.
 
-[Unreleased]: https://github.com/ilyvion/loading-progress/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/ilyvion/loading-progress/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ilyvion/EnhancedBeliefs-Updated/releases/tag/v0.1.0
