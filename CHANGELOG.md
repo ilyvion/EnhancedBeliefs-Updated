@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-08-04
+
 ### Changed
 
 - Changed back to original packageId for better future compatibility with original.
@@ -21,5 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Project layout changed to match how ilyvion works.
 
-[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.0..v0.1.1
 [0.1.0]: https://github.com/ilyvion/EnhancedBeliefs-Updated/releases/tag/v0.1.0
