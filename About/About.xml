@@ -7,6 +7,7 @@
 		<li>1.5</li>
 		<li>1.6</li>
 	</supportedVersions>
+	<modVersion>0.1.0</modVersion>
 	<packageId>smartkar.enhancedbeliefs</packageId>
 	<modDependencies>
 		<li>
@@ -18,6 +19,8 @@
 	</modDependencies>
 	<loadAfter>
 		<li>brrainz.harmony</li>
+		<li>ludeon.rimworld.royalty</li>
+		<li>ludeon.rimworld.ideology</li>
 	</loadAfter>
 	<description>Ideology certainty will now depend on affirmation of pawn's beliefs and conduction of rituals they like or dislike, instead of being based purely on pawn's mood. Pawns will have opinions on other ideologies and may convert before losing their own certainty if there's a similar ideology that they like more than their own. Rebalanced to multiple precepts and changes to how differences between ideologies impact pawn relationships.</description>
 </ModMetaData>
