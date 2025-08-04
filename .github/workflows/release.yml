@@ -29,4 +29,3 @@ jobs:
       rw_versions: |-
         1.5
         1.6
-      upload_to_steam: false # we can't do it automatically the first time
