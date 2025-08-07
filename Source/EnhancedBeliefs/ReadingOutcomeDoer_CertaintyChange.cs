@@ -1,13 +1,4 @@
-﻿using RimWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using Verse;
-
-namespace EnhancedBeliefs
+﻿namespace EnhancedBeliefs
 {
     public class ReadingOutcomeDoer_CertaintyChange : BookOutcomeDoer
     {

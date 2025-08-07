@@ -1,12 +1,4 @@
-﻿using RimWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Verse;
-using static RimWorld.IdeoDescriptionUtility;
-using Verse.Grammar;
+﻿using Verse.Grammar;
 using static RimWorld.IdeoFoundation_Deity;
 
 #if v1_5

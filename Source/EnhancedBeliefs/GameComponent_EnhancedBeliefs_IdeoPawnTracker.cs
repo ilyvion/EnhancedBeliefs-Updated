@@ -1,11 +1,7 @@
 #nullable enable
 
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using RimWorld;
-using Verse;
 
 namespace EnhancedBeliefs;
 
