@@ -1,4 +1,5 @@
 ﻿using Verse.Grammar;
+
 using static RimWorld.IdeoFoundation_Deity;
 
 #if v1_5
@@ -7,204 +8,199 @@ using PlanetTile = int;
 using RimWorld.Planet;
 #endif
 
-namespace EnhancedBeliefs
+namespace EnhancedBeliefs;
+
+internal class BookIdeo : Book
 {
-    public class BookIdeo : Book
+    private ReadingOutcomeDoer_CertaintyChange? doer;
+    public ReadingOutcomeDoer_CertaintyChange Doer
     {
-        public ReadingOutcomeDoer_CertaintyChange doer;
-
-        public ReadingOutcomeDoer_CertaintyChange Doer
+        get
         {
-            get
+            if (doer == null)
             {
-                if (doer == null)
-                {
-                    CompBook comp = GetComp<CompBook>();
+                var comp = GetComp<CompBook>();
 
-                    for (int i = 0; i < comp.doers.Count; i++)
+                foreach (var doer in comp.doers)
+                {
+                    if (doer is ReadingOutcomeDoer_CertaintyChange change)
                     {
-                        if (comp.doers[i] is ReadingOutcomeDoer_CertaintyChange change)
-                        {
-                            doer = change;
-                            break;
-                        }
+                        this.doer = change;
+                        break;
                     }
                 }
-
-                return doer;
             }
+
+            return (doer) ?? throw new InvalidOperationException(
+                "Tried to get Doer on a EnhancedBeliefs.BookIdeo without a ReadingOutcomeDoer_CertaintyChange. This should not happen.");
+        }
+    }
+
+    public Ideo? Ideo
+    {
+        get => Doer?.ideo;
+        set
+        {
+            if (Doer == null)
+            {
+                Log.Error("Tried to set Ideo on a book without a ReadingOutcomeDoer_CertaintyChange. This should not happen.");
+                return;
+            }
+            Doer.ideo = value;
+        }
+    }
+
+    public override void PostQualitySet()
+    {
+    }
+
+    public override void GenerateBook(Pawn? author = null, long? fixedDate = null)
+    {
+        base.GenerateBook(author, fixedDate);
+
+        if (Ideo != null)
+        {
+            RegenerateName(Ideo);
+        }
+    }
+
+    // Ensure that traders get their book ideo
+    public override void PostGeneratedForTrader(TraderKindDef trader, PlanetTile forTile, Faction forFaction)
+    {
+        base.PostGeneratedForTrader(trader, forTile, forFaction);
+
+        Ideo ??= forFaction == null || forFaction.ideos == null
+                ? Find.IdeoManager.IdeosListForReading.RandomElement()
+                : forFaction.ideos.PrimaryIdeo;
+
+        RegenerateName(Ideo);
+    }
+
+    // Checks for null ideos in case something goes wrong
+    public override void TickRare()
+    {
+        base.TickRare();
+
+        if (Ideo == null)
+        {
+            Ideo = Find.IdeoManager.IdeosListForReading.RandomElement();
+            RegenerateName(Ideo);
+        }
+    }
+
+    //Completely copied over from ideo generation code, also generates description
+    // TODO: Consider using a reverse transpiler to avoid code duplication
+    private void RegenerateName(Ideo ideo)
+    {
+        var request = default(GrammarRequest);
+        request.Includes.Add(ideo.culture.ideoNameMaker);
+        var foundation = ideo.foundation;
+        var foundationDeity = foundation as IdeoFoundation_Deity;
+        foundation.AddPlaceRules(ref request);
+        foundationDeity?.AddDeityRules(ref request);
+        List<SymbolSource> list = [];
+        if (ideo.memes.Any(m => !m.symbolPacks.NullOrEmpty()))
+        {
+            list.Add(SymbolSource.Pack);
+        }
+        if (foundationDeity != null && foundationDeity.deities.Count >= 1 && !ideo.memes.Any(m => !m.allowSymbolsFromDeity))
+        {
+            list.Add(SymbolSource.Deity);
+        }
+        if (list.Count == 0)
+        {
+            return;
+        }
+        switch (list.RandomElementByWeight(s => s == SymbolSource.Pack ? 1f : 0.5f))
+        {
+            case SymbolSource.Pack:
+                SetupFromSymbolPack(ideo);
+                break;
+            case SymbolSource.Deity:
+                SetupFromDeity(ideo);
+                break;
+            default:
+                break;
+        }
+        title = GenText.CapitalizeAsTitle(GrammarResolver.Resolve("r_ideoName", request, null, false, null, null, null, true));
+
+        var patterns = (from entry in ideo.memes.Where(meme => meme.descriptionMaker?.patterns != null).SelectMany(meme => meme.descriptionMaker.patterns)
+                        group entry by entry.def into grp
+                        select grp.MaxBy(entry => entry.weight)).ToList();
+        if (!list.Any())
+        {
+            return;
         }
 
-        public Ideo Ideo
+        var def = patterns.RandomElementByWeight(entry => entry.weight).def;
+        descriptionFlavor = IdeoDescriptionUtility.ResolveDescription(Ideo, def, true).text;
+        description = GenerateFullDescription();
+
+        void AddMemeContent(Ideo ideo)
         {
-            get
+            foreach (var item in ideo.memes)
             {
-                return Doer.ideo;
-            }
-            set
-            {
-                Doer.ideo = value;
-            }
-        }
-
-        public override void PostQualitySet()
-        {
-        }
-
-        public override void GenerateBook(Pawn author = null, long? fixedDate = null)
-        {
-            base.GenerateBook(author, fixedDate);
-
-            if (Ideo != null)
-            {
-                RegenerateName();
-            }
-        }
-
-        // Ensure that traders get their book ideo
-        public override void PostGeneratedForTrader(TraderKindDef trader, PlanetTile forTile, Faction forFaction)
-        {
-            base.PostGeneratedForTrader(trader, forTile, forFaction);
-
-
-            if (Ideo == null)
-            {
-                if (forFaction == null || forFaction.ideos == null)
+                if (item.generalRules != null)
                 {
-                    Ideo = Find.IdeoManager.IdeosListForReading.RandomElement();
+                    request.IncludesBare.Add(item.generalRules);
+                }
+            }
+        }
+
+        void AddSymbolPack(IdeoSymbolPack pack, MemeCategory memeCategory)
+        {
+            request.Constants.SetOrAdd("forcePrefix", pack.prefix.ToString());
+            var text = pack.prefix ? (GrammarResolver.Resolve("hyphenPrefix", request) + "-") : string.Empty;
+            if (pack.ideoName != null)
+            {
+                if (memeCategory == MemeCategory.Structure)
+                {
+                    request.Rules.Add(new Rule_String("packIdeoNameStructure", text + pack.ideoName));
                 }
                 else
                 {
-                    Ideo = forFaction.ideos.PrimaryIdeo;
+                    request.Rules.Add(new Rule_String("packIdeoName", text + pack.ideoName));
                 }
             }
-
-            RegenerateName();
+            if (pack.theme != null)
+            {
+                request.Rules.Add(new Rule_String("packTheme", pack.theme));
+            }
+            if (pack.adjective != null)
+            {
+                request.Rules.Add(new Rule_String("packAdjective", text + pack.adjective));
+            }
+            if (pack.member != null)
+            {
+                request.Rules.Add(new Rule_String("packMember", text + pack.member));
+            }
         }
 
-        // Checks for null ideos in case something goes wrong
-        public override void TickRare()
+        void SetupFromDeity(Ideo ideo)
         {
-            base.TickRare();
-
-            if (Ideo == null)
-            {
-                Ideo = Find.IdeoManager.IdeosListForReading.RandomElement();
-                RegenerateName();
-            }
+            request.Rules.Add(new Rule_String("keyDeity", ideo.KeyDeityName));
+            AddMemeContent(ideo);
         }
 
-        //Completely copied over from ideo generation code, also generates description
-        public void RegenerateName()
+        void SetupFromSymbolPack(Ideo ideo)
         {
-            GrammarRequest request = default(GrammarRequest);
-            request.Includes.Add(Ideo.culture.ideoNameMaker);
-            IdeoFoundation foundation = Ideo.foundation;
-            IdeoFoundation_Deity foundationDeity = foundation as IdeoFoundation_Deity;
-            foundation.AddPlaceRules(ref request);
-            if (foundationDeity != null)
+            MemeDef result;
+            if (ideo.StructureMeme.symbolPackOverride)
             {
-                foundationDeity.AddDeityRules(ref request);
+                result = ideo.StructureMeme;
             }
-            List<SymbolSource> list = new List<SymbolSource>();
-            if (Ideo.memes.Any((MemeDef m) => !m.symbolPacks.NullOrEmpty()))
+            else if (!ideo.memes.Where(m => m.symbolPacks.HasData() && m.symbolPacks.Any()).TryRandomElement(out result))
             {
-                list.Add(SymbolSource.Pack);
+                result = ideo.memes.Where(m => m.symbolPacks.HasData()).RandomElement();
             }
-            if (foundationDeity != null && foundationDeity.deities.Count >= 1 && !Ideo.memes.Any((MemeDef m) => !m.allowSymbolsFromDeity))
+            AddMemeContent(ideo);
+            if (result.symbolPacks.TryRandomElement(out var result2))
             {
-                list.Add(SymbolSource.Deity);
+                AddSymbolPack(result2, result.category);
             }
-            if (list.Count == 0)
+            else
             {
-                return;
-            }
-            switch (list.RandomElementByWeight((SymbolSource s) => s == SymbolSource.Pack ? 1f : 0.5f))
-            {
-                case SymbolSource.Pack:
-                    SetupFromSymbolPack();
-                    break;
-                case SymbolSource.Deity:
-                    SetupFromDeity();
-                    break;
-            }
-            title = GenText.CapitalizeAsTitle(GrammarResolver.Resolve("r_ideoName", request, null, false, null, null, null, true));
-
-            List<IdeoDescriptionMaker.PatternEntry> patterns = (from entry in Ideo.memes.Where((MemeDef meme) => meme.descriptionMaker?.patterns != null).SelectMany((MemeDef meme) => meme.descriptionMaker.patterns)
-                                                                group entry by entry.def into grp
-                                                                select grp.MaxBy((IdeoDescriptionMaker.PatternEntry entry) => entry.weight)).ToList();
-            if (!list.Any())
-            {
-                return;
-            }
-
-            IdeoStoryPatternDef def = patterns.RandomElementByWeight((IdeoDescriptionMaker.PatternEntry entry) => entry.weight).def;
-            descriptionFlavor = IdeoDescriptionUtility.ResolveDescription(Ideo, def, true).text;
-            description = GenerateFullDescription();
-
-            void AddMemeContent()
-            {
-                foreach (MemeDef item in Ideo.memes)
-                {
-                    if (item.generalRules != null)
-                    {
-                        request.IncludesBare.Add(item.generalRules);
-                    }
-                }
-            }
-            void AddSymbolPack(IdeoSymbolPack pack, MemeCategory memeCategory)
-            {
-                request.Constants.SetOrAdd("forcePrefix", pack.prefix.ToString());
-                string text = (pack.prefix ? (GrammarResolver.Resolve("hyphenPrefix", request) + "-") : string.Empty);
-                if (pack.ideoName != null)
-                {
-                    if (memeCategory == MemeCategory.Structure)
-                    {
-                        request.Rules.Add(new Rule_String("packIdeoNameStructure", text + pack.ideoName));
-                    }
-                    else
-                    {
-                        request.Rules.Add(new Rule_String("packIdeoName", text + pack.ideoName));
-                    }
-                }
-                if (pack.theme != null)
-                {
-                    request.Rules.Add(new Rule_String("packTheme", pack.theme));
-                }
-                if (pack.adjective != null)
-                {
-                    request.Rules.Add(new Rule_String("packAdjective", text + pack.adjective));
-                }
-                if (pack.member != null)
-                {
-                    request.Rules.Add(new Rule_String("packMember", text + pack.member));
-                }
-            }
-            void SetupFromDeity()
-            {
-                request.Rules.Add(new Rule_String("keyDeity", Ideo.KeyDeityName));
-                AddMemeContent();
-            }
-            void SetupFromSymbolPack()
-            {
-                MemeDef result;
-                if (Ideo.StructureMeme.symbolPackOverride)
-                {
-                    result = Ideo.StructureMeme;
-                }
-                else if (!Ideo.memes.Where((MemeDef m) => m.symbolPacks.HasData() && m.symbolPacks.Any()).TryRandomElement(out result))
-                {
-                    result = Ideo.memes.Where((MemeDef m) => m.symbolPacks.HasData()).RandomElement();
-                }
-                AddMemeContent();
-                if (result.symbolPacks.TryRandomElement(out var result2))
-                {
-                    AddSymbolPack(result2, result.category);
-                }
-                else
-                {
-                    AddSymbolPack(result.symbolPacks.RandomElement(), result.category);
-                }
+                AddSymbolPack(result.symbolPacks.RandomElement(), result.category);
             }
         }
     }

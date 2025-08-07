@@ -1,68 +1,12 @@
-﻿[DefOf]
-public static class EnhancedBeliefsDefOf
+﻿using System.Reflection;
+
+namespace EnhancedBeliefs;
+
+internal class EnhancedBeliefsMod : Mod
 {
-    public static MemeDef Supremacist;
-    public static MemeDef Loyalist;
-    public static MemeDef Guilty;
-    public static MentalStateDef IdeoChange;
-    public static ThingDef EB_UnfinishedIdeobook;
-    public static ThingDef EB_Ideobook;
-    public static JobDef EB_CompleteReligiousBook;
-    public static JobDef EB_BurnReligiousBook;
-    public static ThoughtDef EB_ReligiousBookDestroyed;
-    public static HistoryEventDef EB_DestroyedReligiousBook;
-    public static HistoryEventDef EB_BookDestroyed;
-
-
-    static EnhancedBeliefsDefOf()
+    public EnhancedBeliefsMod(ModContentPack content) : base(content)
     {
-        DefOfHelper.EnsureInitializedInCtor(typeof(EnhancedBeliefsDefOf));
-    }
-}
-
-namespace EnhancedBeliefs
-{
-    public class EnhancedBeliefsMod : Mod
-    {
-        public Harmony harmonyInstance;
-
-        public EnhancedBeliefsMod(ModContentPack content) : base(content)
-        {
-            harmonyInstance = new Harmony(id: "rimworld.smartkar.enhancedbeliefs.main");
-            harmonyInstance.PatchAll();
-        }
-    }
-
-    public static class EnhancedBeliefsUtilities
-    {
-        public static List<T> TryGetComps<T>(this Precept precept) where T : PreceptComp
-        {
-            List<T> comps = new List<T>();
-
-            for (int i = 0; i < precept.def.comps.Count; i++)
-            {
-                if (precept.def.comps[i] is T comp)
-                {
-                    comps.Add(comp);
-                }
-            }
-
-            return comps;
-        }
-
-        public static List<T> TryGetComps<T>(this PreceptDef precept) where T : PreceptComp
-        {
-            List<T> comps = new List<T>();
-
-            for (int i = 0; i < precept.comps.Count; i++)
-            {
-                if (precept.comps[i] is T comp)
-                {
-                    comps.Add(comp);
-                }
-            }
-
-            return comps;
-        }
+        var harmony = new Harmony(content.PackageId);
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 }

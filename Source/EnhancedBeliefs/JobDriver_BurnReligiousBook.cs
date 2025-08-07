@@ -1,77 +1,75 @@
 ﻿using Verse.AI;
 
-namespace EnhancedBeliefs
+namespace EnhancedBeliefs;
+
+internal class JobDriver_BurnReligiousBook : JobDriver
 {
-    public class JobDriver_BurnReligiousBook : JobDriver
+    public Book Book => (Book)TargetThingA;
+
+    public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
-        public Book book => TargetThingA as Book;
+        return pawn.Reserve(Book, job, 1, -1, null, errorOnFailed, true);
+    }
 
-        public override bool TryMakePreToilReservations(bool errorOnFailed)
+    public override IEnumerable<Toil> MakeNewToils()
+    {
+        _ = this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
+        _ = this.FailOn(delegate
         {
-            return pawn.Reserve(book, job, 1, -1, null, errorOnFailed, true);
-        }
+            return Book == null || Book.Destroyed;
+        });
+        yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch).FailOnSomeonePhysicallyInteracting(TargetIndex.A);
+        yield return BurnBook();
+    }
 
-        public override IEnumerable<Toil> MakeNewToils()
+    public Toil BurnBook()
+    {
+        var toil = ToilMaker.MakeToil("BurnBook");
+        toil.initAction = delegate
         {
-            this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
-            this.FailOn(delegate
-            {
-                if (book == null || book.Destroyed)
-                {
-                    return true;
-                }
-
-                return false;
-            });
-            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch).FailOnSomeonePhysicallyInteracting(TargetIndex.A);
-            yield return BurnBook();
-        }
-
-        public Toil BurnBook()
+            pawn.rotationTracker.FaceCell(Book.Position);
+            rotateToFace = TargetIndex.A;
+        };
+        toil.tickAction = delegate
         {
-            Toil toil = ToilMaker.MakeToil("BurnBook");
-            toil.initAction = delegate
+            if (!Book.Destroyed)
             {
-                pawn.rotationTracker.FaceCell(book.Position);
-                rotateToFace = TargetIndex.A;
-            };
-            toil.tickAction = delegate
-            {
-                if (!book.Destroyed)
-                {
-                    book.TakeDamage(new DamageInfo(DamageDefOf.Burn, 0.2f, 100f, instigator: pawn));
-                }
-            };
-            toil.AddFinishAction(delegate
-            {
-                CompBook comp = book.GetComp<CompBook>();
-                Ideo ideo = null;
+                _ = Book.TakeDamage(new DamageInfo(DamageDefOf.Burn, 0.2f, 100f, instigator: pawn));
+            }
+        };
+        toil.AddFinishAction(delegate
+        {
+            var comp = Book.GetComp<CompBook>();
+            Ideo? ideo = null;
 
-                for (int i = 0; i < comp.doers.Count; i++)
-                {
-                    if (comp.doers[i] is ReadingOutcomeDoer_CertaintyChange change)
-                    {
-                        ideo = change.ideo;
-                        break;
-                    }
-                }
-
-                Messages.Message("{0} has destroyed {1}. This has greatly upset {2} of {3}.".Formatted(pawn, book, ideo.MemberNamePlural, ideo), pawn, Find.FactionManager.OfPlayer.ideos.PrimaryIdeo == ideo ? MessageTypeDefOf.NegativeEvent : MessageTypeDefOf.NeutralEvent);
-            });
-            toil.AddEndCondition(delegate
+            foreach (var doer in comp.doers)
             {
-                if (book.Destroyed)
+                if (doer is ReadingOutcomeDoer_CertaintyChange change)
                 {
-                    return JobCondition.Succeeded;
+                    ideo = change.ideo;
+                    break;
                 }
+            }
 
-                return JobCondition.Ongoing;
-            });
-            toil.defaultCompleteMode = ToilCompleteMode.Never;
-            toil.handlingFacing = true;
-            toil.WithProgressBar(TargetIndex.A, () => 1f - ((float)book.HitPoints) / ((float)book.MaxHitPoints));
-            //toil.FailOnCannotTouch(TargetIndex.A, PathEndMode.InteractionCell);
-            return toil;
-        }
+            if (ideo != null)
+            {
+                Messages.Message(
+                    "{0} has destroyed {1}. This has greatly upset {2} of {3}."
+                        .Formatted(pawn, Book, ideo.MemberNamePlural, ideo),
+                    pawn,
+                    Find.FactionManager.OfPlayer.ideos.PrimaryIdeo == ideo
+                        ? MessageTypeDefOf.NegativeEvent
+                        : MessageTypeDefOf.NeutralEvent);
+            }
+        });
+        toil.AddEndCondition(delegate
+        {
+            return Book.Destroyed ? JobCondition.Succeeded : JobCondition.Ongoing;
+        });
+        toil.defaultCompleteMode = ToilCompleteMode.Never;
+        toil.handlingFacing = true;
+        _ = toil.WithProgressBar(TargetIndex.A, () => 1f - (Book.HitPoints / ((float)Book.MaxHitPoints)));
+        //toil.FailOnCannotTouch(TargetIndex.A, PathEndMode.InteractionCell);
+        return toil;
     }
 }

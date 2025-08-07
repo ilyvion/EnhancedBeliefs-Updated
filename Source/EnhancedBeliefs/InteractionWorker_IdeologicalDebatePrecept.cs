@@ -1,211 +1,228 @@
-﻿namespace EnhancedBeliefs
+﻿namespace EnhancedBeliefs;
+
+internal class InteractionWorker_IdeologicalDebatePrecept : InteractionWorker
 {
-    public class InteractionWorker_IdeologicalDebatePrecept : InteractionWorker
+    public IssueDef? topic;
+
+    internal static readonly SimpleCurve CompatibilityFactorCurve =
+    [
+        new CurvePoint(-1.5f, 0.1f),
+        new CurvePoint(-0.5f, 0.5f),
+        new CurvePoint(0f, 1f),
+        new CurvePoint(0.5f, 1.3f),
+        new CurvePoint(1f, 1.8f),
+        new CurvePoint(2f, 3f)
+    ];
+
+    public override float RandomSelectionWeight(Pawn initiator, Pawn recipient)
     {
-        public IssueDef topic;
+        return initiator.Inhumanized()
+            || !ModsConfig.IdeologyActive
+            || Find.IdeoManager.classicMode
+            || initiator.Ideo == null
+            || !recipient.RaceProps.Humanlike
+            || initiator.Ideo == recipient.Ideo
+            || recipient.DevelopmentalStage.Baby()
+            || initiator.skills.GetSkill(SkillDefOf.Social).TotallyDisabled
+            ? 0f
+            : 0.03f * initiator.GetStatValue(StatDefOf.SocialIdeoSpreadFrequencyFactor) * CompatibilityFactorCurve.Evaluate(initiator.relations.CompatibilityWith(recipient));
+    }
 
-        public static readonly SimpleCurve CompatibilityFactorCurve = new SimpleCurve
+    public override void Interacted(
+        Pawn initiator,
+        Pawn recipient,
+        List<RulePackDef> extraSentencePacks,
+        out string? letterText,
+        out string? letterLabel,
+        out LetterDef? letterDef,
+        out LookTargets? lookTargets)
+    {
+        letterText = null;
+        letterLabel = null;
+        letterDef = null;
+        lookTargets = null;
+
+        var comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+        var initiatorTracker = comp.PawnTracker.EnsurePawnHasIdeoTracker(initiator);
+        var recipientTracker = comp.PawnTracker.EnsurePawnHasIdeoTracker(recipient);
+        var initiatorIdeo = initiator.Ideo;
+        var recipientIdeo = recipient.Ideo;
+
+        topic = GetDebateTopic(initiatorIdeo, recipientIdeo);
+        var initiatorPrecept = GetPreceptForTopic(initiatorIdeo, topic, initiator);
+        if (initiatorPrecept == null)
         {
-            new CurvePoint(-1.5f, 0.1f),
-            new CurvePoint(-0.5f, 0.5f),
-            new CurvePoint(0f, 1f),
-            new CurvePoint(0.5f, 1.3f),
-            new CurvePoint(1f, 1.8f),
-            new CurvePoint(2f, 3f)
-        };
-
-        public override float RandomSelectionWeight(Pawn initiator, Pawn recipient)
+            return;
+        }
+        var recipientPrecept = GetPreceptForTopic(recipientIdeo, topic, recipient);
+        if (recipientPrecept == null)
         {
-            if (initiator.Inhumanized())
-            {
-                return 0f;
-            }
-
-            if (!ModsConfig.IdeologyActive)
-            {
-                return 0f;
-            }
-
-            if (Find.IdeoManager.classicMode)
-            {
-                return 0f;
-            }
-
-            if (initiator.Ideo == null || !recipient.RaceProps.Humanlike || initiator.Ideo == recipient.Ideo)
-            {
-                return 0f;
-            }
-
-            if (recipient.DevelopmentalStage.Baby())
-            {
-                return 0f;
-            }
-
-            if (initiator.skills.GetSkill(SkillDefOf.Social).TotallyDisabled)
-            {
-                return 0f;
-            }
-
-            return 0.03f * initiator.GetStatValue(StatDefOf.SocialIdeoSpreadFrequencyFactor) * CompatibilityFactorCurve.Evaluate(initiator.relations.CompatibilityWith(recipient));
+            return;
         }
 
-        public override void Interacted(Pawn initiator, Pawn recipient, List<RulePackDef> extraSentencePacks, out string letterText, out string letterLabel, out LetterDef letterDef, out LookTargets lookTargets)
+        var initiatorRoll = GetDebateRoll(initiator);
+        var recipientRoll = GetDebateRoll(recipient);
+
+        if (Math.Abs(initiatorRoll - recipientRoll) <= 0.1f)
         {
-            letterText = null;
-            letterLabel = null;
-            letterDef = null;
-            lookTargets = null;
-
-            GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-
-            IdeoTrackerData initiatorTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(initiator);
-            IdeoTrackerData recipientTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(recipient);
-
-            Ideo initiatorIdeo = initiator.Ideo;
-            Ideo recipientIdeo = recipient.Ideo;
-
-            List<IssueDef> initiatorIssues = new List<IssueDef>();
-            List<IssueDef> recipientIssues = new List<IssueDef>();
-
-            for (int i = 0; i < initiatorIdeo.precepts.Count; i++)
+            if (HandleDraw(initiator, recipient, initiatorTracker, recipientTracker, initiatorPrecept, recipientPrecept, initiatorIdeo, recipientIdeo, extraSentencePacks, ref letterText, ref letterLabel, ref letterDef, ref lookTargets))
             {
-                if (!initiatorIssues.Contains(initiatorIdeo.precepts[i].def.issue))
-                {
-                    initiatorIssues.Add(initiatorIdeo.precepts[i].def.issue);
-                }
-            }
-
-            for (int i = 0; i < recipientIdeo.precepts.Count; i++)
-            {
-                if (!recipientIssues.Contains(recipientIdeo.precepts[i].def.issue))
-                {
-                    recipientIssues.Add(recipientIdeo.precepts[i].def.issue);
-                }
-            }
-
-            topic = initiatorIssues.Intersect(recipientIssues).RandomElement();
-
-            PreceptDef initiatorPrecept = null;
-            PreceptDef recipientPrecept = null;
-
-            for (int i = 0; i < initiatorIdeo.precepts.Count; i++)
-            {
-                if (initiatorIdeo.precepts[i].def.issue == topic)
-                {
-                    initiatorPrecept = initiatorIdeo.precepts[i].def;
-                    break;
-                }
-            }
-
-            for (int i = 0; i < recipientIdeo.precepts.Count; i++)
-            {
-                if (recipientIdeo.precepts[i].def.issue == topic)
-                {
-                    recipientPrecept = recipientIdeo.precepts[i].def;
-                    break;
-                }
-            }
-
-            float initiatorRoll = Rand.Value * initiator.GetStatValue(StatDefOf.ConversionPower) / initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * initiator.GetStatValue(StatDefOf.SocialImpact) * (1f + (initiator.ideo.Certainty - 0.6f) * 0.5f);
-            float recipientRoll = Rand.Value * recipient.GetStatValue(StatDefOf.ConversionPower) / recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * recipient.GetStatValue(StatDefOf.SocialImpact) * (1f + (recipient.ideo.Certainty - 0.6f) * 0.5f);
-
-            Pawn winner;
-            Pawn loser;
-            PreceptDef winnerPrecept;
-            PreceptDef loserPrecept;
-
-            if (initiatorRoll - recipientRoll > 0.1f)
-            {
-                winner = initiator;
-                loser = recipient;
-                winnerPrecept = initiatorPrecept;
-                loserPrecept = recipientPrecept;
-            }
-            else if (recipientRoll - initiatorRoll > 0.1f)
-            {
-                winner = recipient;
-                loser = initiator;
-                winnerPrecept = recipientPrecept;
-                loserPrecept = initiatorPrecept;
-            }
-            else
-            {
-                // A draw happened, time for special cases!
-
-                // Fetch social fight multiplier
-                interaction.socialFightBaseChance = 1f;
-                float fightChanceModifier = (initiator.interactions.SocialFightChance(interaction, recipient) + recipient.interactions.SocialFightChance(interaction, initiator));
-                interaction.socialFightBaseChance = 0f;
-
-                // Socially adept pawns are much less likely to start a brawl over an ideological debate
-                float socialFightChance = 0.05f * fightChanceModifier / (0.5f + initiator.skills.GetSkill(SkillDefOf.Social).Level * 0.1f) / (0.5f + recipient.skills.GetSkill(SkillDefOf.Social).Level * 0.1f);
-
-                if (Rand.Value < socialFightChance)
-                {
-                    recipient.interactions.StartSocialFight(initiator, "{PAWN1_nameDef} tried to debate ideological views with {PAWN2_nameDef}. This led to a social fight!");
-                    return;
-                }
-
-                // Smarter pawns have a higher chance of arriving to a mutual conclusion that both of their ideoligions suck
-                float randomOpinion = 0.2f * (0.75f + initiator.skills.GetSkill(SkillDefOf.Intellectual).Level * 0.05f) * (0.75f + recipient.skills.GetSkill(SkillDefOf.Intellectual).Level * 0.05f) / (0.2f + ((initiator.ideo.Certainty + recipient.ideo.Certainty) / 2f) * 0.8f);
-
-                if (Rand.Value < randomOpinion)
-                {
-                    initiatorTracker.AdjustPreceptOpinion(initiatorPrecept, -0.03f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
-                    recipientTracker.AdjustPreceptOpinion(recipientPrecept, -0.03f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
-
-                    initiator.ideo.Certainty = Mathf.Clamp01(0.01f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
-                    recipient.ideo.Certainty = Mathf.Clamp01(0.01f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + Rand.Value * 0.4f));
-
-                    // Would be pretty funny if they both decide to change their beliefs at the same time
-
-                    if (initiatorTracker.CheckConversion() == ConversionOutcome.Success)
-                    {
-                        if (PawnUtility.ShouldSendNotificationAbout(initiator) || PawnUtility.ShouldSendNotificationAbout(recipient))
-                        {
-                            letterLabel = "LetterLabelConvertIdeoAttempt_Success".Translate();
-                            letterText = "Debates between {0] and {1} resulted in {1} turning away from {2} and towards {3}.".Formatted(initiator, recipient, initiatorIdeo, initiator.Ideo);
-                            letterDef = LetterDefOf.NeutralEvent;
-                            lookTargets = new LookTargets(recipient, initiator);
-                            Precept_Role role = initiatorIdeo.GetRole(initiator);
-
-                            if (role != null)
-                            {
-                                letterText = letterText + "\n\n" + "LetterRoleLostLetterIdeoChangedPostfix".Translate(initiator.Named("PAWN"), role.Named("ROLE"), initiatorIdeo.Named("OLDIDEO")).Resolve();
-                            }
-                        }
-
-                        extraSentencePacks.Add(RulePackDefOf.Sentence_ConvertIdeoAttemptSuccess);
-                    }
-
-                    if (recipientTracker.CheckConversion() == ConversionOutcome.Success)
-                    {
-                        if (PawnUtility.ShouldSendNotificationAbout(initiator) || PawnUtility.ShouldSendNotificationAbout(recipient))
-                        {
-                            letterLabel = "LetterLabelConvertIdeoAttempt_Success".Translate();
-                            letterText = "Debates between {0] and {1} resulted in {1} turning away from {2} and towards {3}.".Formatted(recipient, initiator, recipientIdeo, recipient.Ideo);
-                            letterDef = LetterDefOf.NeutralEvent;
-                            lookTargets = new LookTargets(initiator, recipient);
-                            Precept_Role role = recipientIdeo.GetRole(recipient);
-
-                            if (role != null)
-                            {
-                                letterText = letterText + "\n\n" + "LetterRoleLostLetterIdeoChangedPostfix".Translate(recipient.Named("PAWN"), role.Named("ROLE"), recipientIdeo.Named("OLDIDEO")).Resolve();
-                            }
-                        }
-
-                        extraSentencePacks.Add(RulePackDefOf.Sentence_ConvertIdeoAttemptSuccess);
-                    }
-
-                    return;
-                }
-
                 return;
             }
-
-            IdeoTrackerData loserTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(loser);
-            loserTracker.AdjustPreceptOpinion(winnerPrecept, 0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
-            loserTracker.AdjustPreceptOpinion(loserPrecept, -0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
         }
+        else
+        {
+            AdjustOpinions(initiator, recipient, comp, initiatorPrecept, recipientPrecept, initiatorRoll, recipientRoll);
+        }
+    }
+
+    private static IssueDef? GetDebateTopic(Ideo initiatorIdeo, Ideo recipientIdeo)
+    {
+        var initiatorIssues = initiatorIdeo.precepts.Select(p => p.def.issue).Distinct();
+        var recipientIssues = recipientIdeo.precepts.Select(p => p.def.issue).Distinct();
+        return initiatorIssues.Intersect(recipientIssues).RandomElement();
+    }
+
+    private static PreceptDef? GetPreceptForTopic(Ideo ideo, IssueDef? topic, Pawn pawn)
+    {
+        var precept = ideo.precepts.Select(p => p.def).FirstOrDefault(d => d.issue == topic);
+        if (precept == null)
+        {
+            Log.Error($"Could not find precept for {pawn} on topic {topic}. This should not happen.");
+        }
+        return precept;
+    }
+
+    private static float GetDebateRoll(Pawn pawn)
+    {
+        return Rand.Value * pawn.GetStatValue(StatDefOf.ConversionPower) /
+               pawn.GetStatValue(StatDefOf.CertaintyLossFactor) *
+               pawn.GetStatValue(StatDefOf.SocialImpact) *
+               (1f + ((pawn.ideo.Certainty - 0.6f) * 0.5f));
+    }
+
+    private bool HandleDraw(
+        Pawn initiator,
+        Pawn recipient,
+        IdeoTrackerData initiatorTracker,
+        IdeoTrackerData recipientTracker,
+        PreceptDef initiatorPrecept,
+        PreceptDef recipientPrecept,
+        Ideo initiatorIdeo,
+        Ideo recipientIdeo,
+        List<RulePackDef> extraSentencePacks,
+        ref string? letterText,
+        ref string? letterLabel,
+        ref LetterDef? letterDef,
+        ref LookTargets? lookTargets)
+    {
+        // Fetch social fight multiplier
+        interaction.socialFightBaseChance = 1f;
+        var fightChanceModifier = initiator.interactions.SocialFightChance(interaction, recipient) + recipient.interactions.SocialFightChance(interaction, initiator);
+        interaction.socialFightBaseChance = 0f;
+
+        // Socially adept pawns are much less likely to start a brawl over an ideological debate
+        var socialFightChance = 0.05f * fightChanceModifier /
+            (0.5f + (initiator.skills.GetSkill(SkillDefOf.Social).Level * 0.1f)) /
+            (0.5f + (recipient.skills.GetSkill(SkillDefOf.Social).Level * 0.1f));
+
+        if (Rand.Value < socialFightChance)
+        {
+            recipient.interactions.StartSocialFight(initiator, "{PAWN1_nameDef} tried to debate ideological views with {PAWN2_nameDef}. This led to a social fight!");
+            return true;
+        }
+
+        // Smarter pawns have a higher chance of arriving to a mutual conclusion that both of their ideoligions suck
+        var randomOpinion = 0.2f * (0.75f + (initiator.skills.GetSkill(SkillDefOf.Intellectual).Level * 0.05f)) *
+            (0.75f + (recipient.skills.GetSkill(SkillDefOf.Intellectual).Level * 0.05f)) /
+            (0.2f + ((initiator.ideo.Certainty + recipient.ideo.Certainty) / 2f * 0.8f));
+
+        if (Rand.Value < randomOpinion)
+        {
+            initiatorTracker.AdjustPreceptOpinion(
+                initiatorPrecept,
+                -0.03f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + (Rand.Value * 0.4f)));
+            recipientTracker.AdjustPreceptOpinion(
+                recipientPrecept,
+                -0.03f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + (Rand.Value * 0.4f)));
+
+            initiator.ideo.Certainty = Mathf.Clamp01(0.01f * initiator.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + (Rand.Value * 0.4f)));
+            recipient.ideo.Certainty = Mathf.Clamp01(0.01f * recipient.GetStatValue(StatDefOf.CertaintyLossFactor) * (0.8f + (Rand.Value * 0.4f)));
+
+            // Would be pretty funny if they both decide to change their beliefs at the same time
+            HandleConversion(initiator, recipient, initiatorTracker, recipientTracker, initiatorIdeo, recipientIdeo, extraSentencePacks, ref letterText, ref letterLabel, ref letterDef, ref lookTargets);
+            return true;
+        }
+        return false;
+    }
+
+    private static void HandleConversion(
+        Pawn initiator,
+        Pawn recipient,
+        IdeoTrackerData initiatorTracker,
+        IdeoTrackerData recipientTracker,
+        Ideo initiatorIdeo,
+        Ideo recipientIdeo,
+        List<RulePackDef> extraSentencePacks,
+        ref string? letterText,
+        ref string? letterLabel,
+        ref LetterDef? letterDef,
+        ref LookTargets? lookTargets)
+    {
+        if (initiatorTracker.CheckConversion() == ConversionOutcome.Success)
+        {
+            if (PawnUtility.ShouldSendNotificationAbout(initiator) || PawnUtility.ShouldSendNotificationAbout(recipient))
+            {
+                letterLabel = "LetterLabelConvertIdeoAttempt_Success".Translate();
+                letterText = "Debates between {0] and {1} resulted in {1} turning away from {2} and towards {3}.".Formatted(initiator, recipient, initiatorIdeo, initiator.Ideo);
+                letterDef = LetterDefOf.NeutralEvent;
+                lookTargets = new LookTargets(recipient, initiator);
+                var role = initiatorIdeo.GetRole(initiator);
+                if (role != null)
+                {
+                    letterText = letterText + "\n\n" + "LetterRoleLostLetterIdeoChangedPostfix".Translate(initiator.Named("PAWN"), role.Named("ROLE"), initiatorIdeo.Named("OLDIDEO")).Resolve();
+                }
+            }
+            extraSentencePacks.Add(RulePackDefOf.Sentence_ConvertIdeoAttemptSuccess);
+        }
+        if (recipientTracker.CheckConversion() == ConversionOutcome.Success)
+        {
+            if (PawnUtility.ShouldSendNotificationAbout(initiator) || PawnUtility.ShouldSendNotificationAbout(recipient))
+            {
+                letterLabel = "LetterLabelConvertIdeoAttempt_Success".Translate();
+                letterText = "Debates between {0] and {1} resulted in {1} turning away from {2} and towards {3}.".Formatted(recipient, initiator, recipientIdeo, recipient.Ideo);
+                letterDef = LetterDefOf.NeutralEvent;
+                lookTargets = new LookTargets(initiator, recipient);
+                var role = recipientIdeo.GetRole(recipient);
+                if (role != null)
+                {
+                    letterText = letterText + "\n\n" + "LetterRoleLostLetterIdeoChangedPostfix".Translate(recipient.Named("PAWN"), role.Named("ROLE"), recipientIdeo.Named("OLDIDEO")).Resolve();
+                }
+            }
+            extraSentencePacks.Add(RulePackDefOf.Sentence_ConvertIdeoAttemptSuccess);
+        }
+    }
+
+    private static void AdjustOpinions(Pawn initiator, Pawn recipient, GameComponent_EnhancedBeliefs comp, PreceptDef initiatorPrecept, PreceptDef recipientPrecept, float initiatorRoll, float recipientRoll)
+    {
+        Pawn winner, loser;
+        PreceptDef? winnerPrecept, loserPrecept;
+        if (initiatorRoll > recipientRoll)
+        {
+            winner = initiator;
+            loser = recipient;
+            winnerPrecept = initiatorPrecept;
+            loserPrecept = recipientPrecept;
+        }
+        else
+        {
+            winner = recipient;
+            loser = initiator;
+            winnerPrecept = recipientPrecept;
+            loserPrecept = initiatorPrecept;
+        }
+        var loserTracker = comp.PawnTracker.EnsurePawnHasIdeoTracker(loser);
+        loserTracker.AdjustPreceptOpinion(winnerPrecept, 0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
+        loserTracker.AdjustPreceptOpinion(loserPrecept, -0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
     }
 }

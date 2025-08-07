@@ -4,27 +4,26 @@
 using PlanetTile = int;
 #endif
 
-namespace EnhancedBeliefs
+namespace EnhancedBeliefs;
+
+internal class StockGenerator_IdeoBook : StockGenerator_SingleDef
 {
-    public class StockGenerator_IdeoBook : StockGenerator_SingleDef
+    public override IEnumerable<Thing> GenerateThings(PlanetTile forTile, Faction? faction = null)
     {
-        public override IEnumerable<Thing> GenerateThings(PlanetTile forTile, Faction faction = null)
+        foreach (var book in StockGeneratorUtility.TryMakeForStock(thingDef, RandomCountOf(thingDef), faction).Cast<Book>())
         {
-            foreach (Book book in StockGeneratorUtility.TryMakeForStock(thingDef, RandomCountOf(thingDef), faction))
+            foreach (var doer in book.BookComp.Doers)
             {
-                foreach (BookOutcomeDoer doer in book.BookComp.Doers)
+                if (doer is ReadingOutcomeDoer_CertaintyChange changer)
                 {
-                    if (doer is ReadingOutcomeDoer_CertaintyChange changer)
+                    if (faction != null && faction.ideos?.PrimaryIdeo != null)
                     {
-                        if (faction != null && faction.ideos?.PrimaryIdeo != null)
-                        {
-                            changer.ideo = faction.ideos?.PrimaryIdeo;
-                        }
+                        changer.ideo = faction.ideos?.PrimaryIdeo;
                     }
                 }
-
-                yield return book;
             }
+
+            yield return book;
         }
     }
 }

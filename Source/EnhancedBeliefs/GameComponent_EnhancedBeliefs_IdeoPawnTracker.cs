@@ -1,13 +1,11 @@
-#nullable enable
-
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace EnhancedBeliefs;
 
-public partial class GameComponent_EnhancedBeliefs
+internal partial class GameComponent_EnhancedBeliefs
 {
-    public class IdeoPawnTracker : IEnumerable<KeyValuePair<Ideo, List<Pawn>>>
+    internal class IdeoPawnTracker : IEnumerable<KeyValuePair<Ideo, List<Pawn>>>
     {
 #pragma warning disable IDE0028 // Simplify collection initialization
         public ConditionalWeakTable<Ideo, List<Pawn>> ideoPawnsTracker = new();
@@ -50,7 +48,7 @@ public partial class GameComponent_EnhancedBeliefs
         }
 
         private readonly List<KeyValuePair<Ideo, List<Pawn>>> _tmpForEachList = [];
-        public void ForEach(System.Action<KeyValuePair<Ideo, List<Pawn>>> action)
+        public void ForEach(Action<KeyValuePair<Ideo, List<Pawn>>> action)
         {
             _tmpForEachList.AddRange(ideoPawnsTracker.Select(kvp => kvp));
             try

@@ -1,59 +1,37 @@
-﻿namespace EnhancedBeliefs
+﻿namespace EnhancedBeliefs;
+
+internal class PreceptComp_OpinionOffset : PreceptComp
 {
-    public class PreceptComp_OpinionOffset : PreceptComp
+    public int externalOffset = 0;
+    public int internalOffset = 0;
+    public List<TraitRequirement> agreeableTraits = [];
+    public List<TraitRequirement> disagreeableTraits = [];
+    public float opinionPerTrait = 2f;
+
+    public virtual int ExternalOffset => externalOffset;
+    public virtual int InternalOffset => internalOffset;
+
+    public virtual float GetTraitOpinion(Pawn pawn)
     {
-        public int externalOffset = 0;
-        public int internalOffset = 0;
-        public List<TraitRequirement> agreeableTraits;
-        public List<TraitRequirement> disagreeableTraits;
-        public float opinionPerTrait = 2f;
+        var opinion = 0f;
 
-        public virtual int ExternalOffset
+        foreach (var trait in agreeableTraits)
         {
-            get
+            if (trait.HasTrait(pawn))
             {
-                return externalOffset;
-            }
-        }
-        public virtual int InternalOffset
-        {
-            get
-            {
-                return internalOffset;
+                opinion += 1f;
             }
         }
 
-        public virtual float GetTraitOpinion(Pawn pawn)
+
+        foreach (var trait in disagreeableTraits)
         {
-            float opinion = 0f;
-
-            if (!agreeableTraits.NullOrEmpty())
+            if (trait.HasTrait(pawn))
             {
-                for (int i = 0; i < agreeableTraits.Count; i++)
-                {
-                    TraitRequirement trait = agreeableTraits[i];
-
-                    if (trait.HasTrait(pawn))
-                    {
-                        opinion += 1f;
-                    }
-                }
+                opinion -= 1f;
             }
-
-            if (!disagreeableTraits.NullOrEmpty())
-            {
-                for (int i = 0; i < disagreeableTraits.Count; i++)
-                {
-                    TraitRequirement trait = disagreeableTraits[i];
-
-                    if (trait.HasTrait(pawn))
-                    {
-                        opinion -= 1f;
-                    }
-                }
-            }
-
-            return opinion * opinionPerTrait;
         }
+
+        return opinion * opinionPerTrait;
     }
 }

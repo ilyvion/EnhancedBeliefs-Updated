@@ -1,74 +1,75 @@
 ﻿using Verse.AI;
 
-namespace EnhancedBeliefs
+namespace EnhancedBeliefs;
+
+internal class MentalState_Iconoclast : MentalState_Tantrum
 {
-    public class MentalState_Iconoclast : MentalState_Tantrum
-    {
-        public int booksLeft = -1;
-        private static List<Thing> tmpThings = new List<Thing>();
+    public int booksLeft = -1;
+    private static readonly List<Thing> tmpThings = [];
 
 #if v1_5
-        public override void MentalStateTick()
+    public override void MentalStateTick()
 #else
-        public override void MentalStateTick(int delta)
+    public override void MentalStateTick(int delta)
 #endif
+    {
+        if (booksLeft <= 0)
         {
-            if (booksLeft <= 0)
+            RecoverFromState();
+            return;
+        }
+
+        if (target == null || target.Destroyed)
+        {
+            booksLeft -= 1;
+
+            if (booksLeft == 0 || !TryFindNewTarget())
             {
                 RecoverFromState();
                 return;
             }
 
-            if (target == null || target.Destroyed)
+        }
+
+        // target is not null here because we checked it above; if target is null or destroyed and
+        // TryFindNewTarget returns false, we already returned.
+        if (!target!.Spawned || !pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly))
+        {
+            var thing = target;
+
+            if (!TryFindNewTarget())
             {
-                booksLeft -= 1;
-
-                if (!TryFindNewTarget() || booksLeft == 0)
-                {
-                    RecoverFromState();
-                    return;
-                }
-
+                RecoverFromState();
+                return;
             }
 
-            if (!target.Spawned || !pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly))
-            {
-                Thing thing = target;
-
-                if (!TryFindNewTarget())
-                {
-                    RecoverFromState();
-                    return;
-                }
-
-                Messages.Message("MessageTargetedTantrumChangedTarget".Translate(pawn.LabelShort, thing.Label, target.Label, pawn.Named("PAWN"), thing.Named("OLDTARGET"), target.Named("TARGET")).AdjustedFor(pawn), pawn, MessageTypeDefOf.NegativeEvent);
-            }
+            Messages.Message("MessageTargetedTantrumChangedTarget".Translate(pawn.LabelShort, thing.Label, target.Label, pawn.Named("PAWN"), thing.Named("OLDTARGET"), target.Named("TARGET")).AdjustedFor(pawn), pawn, MessageTypeDefOf.NegativeEvent);
+        }
 
 #if v1_5
-            base.MentalStateTick();
+        base.MentalStateTick();
 #else
-            base.MentalStateTick(delta);
+        base.MentalStateTick(delta);
 #endif
-        }
+    }
 
-        public override void PostStart(string reason)
-        {
-            base.PostStart(reason);
-            booksLeft = Rand.RangeInclusive(2, 4);
-        }
+    public override void PostStart(string reason)
+    {
+        base.PostStart(reason);
+        booksLeft = Rand.RangeInclusive(2, 4);
+    }
 
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Values.Look(ref booksLeft, "booksBurned");
-        }
+    public override void ExposeData()
+    {
+        base.ExposeData();
+        Scribe_Values.Look(ref booksLeft, "booksBurned");
+    }
 
-        private bool TryFindNewTarget()
-        {
-            TantrumMentalStateUtility.GetSmashableThingsNear(pawn, pawn.Position, tmpThings, (Thing t) => t is BookIdeo);
-            bool result = tmpThings.TryRandomElementByWeight((Thing x) => x.MarketValue * (float)x.stackCount, out target);
-            tmpThings.Clear();
-            return result;
-        }
+    private bool TryFindNewTarget()
+    {
+        TantrumMentalStateUtility.GetSmashableThingsNear(pawn, pawn.Position, tmpThings, t => t is BookIdeo);
+        var result = tmpThings.TryRandomElementByWeight(x => x.MarketValue * x.stackCount, out target);
+        tmpThings.Clear();
+        return result;
     }
 }

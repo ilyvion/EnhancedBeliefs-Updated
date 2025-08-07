@@ -6,8 +6,8 @@
 		<OutputType>Library</OutputType>
 		<TargetFramework>net481</TargetFramework>
 		<PlatformTarget>x64</PlatformTarget>
-		<LangVersion>12.0</LangVersion>
-		<Nullable>disable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
 
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>preview-all</AnalysisLevel>
@@ -15,8 +15,6 @@
 		<WarningLevel>5</WarningLevel>
 
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
-		<NoWarn>CA1000;CA1051;CA1305;CA1310;CA1707;CA1708;CA1711;CA1725;CA1852;CA2201;IDE0008;IDE0160</NoWarn>
 
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>

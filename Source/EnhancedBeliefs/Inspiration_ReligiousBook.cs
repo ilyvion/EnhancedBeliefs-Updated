@@ -1,20 +1,21 @@
-﻿namespace EnhancedBeliefs
+﻿namespace EnhancedBeliefs;
+
+internal class Inspiration_ReligiousBook : Inspiration
 {
-    public class Inspiration_ReligiousBook : Inspiration
+    public const float InitialWork = 45000f;
+
+    public override void PostStart(bool sendLetter = true)
     {
-        public override void PostStart(bool sendLetter = true)
+        base.PostStart(sendLetter);
+
+        if (pawn.Map == null || !pawn.Position.IsValid)
         {
-            base.PostStart(sendLetter);
-
-            if (pawn.Map == null || pawn.Position == null)
-            {
-                return;
-            }
-
-            UnfinishedThing book = GenSpawn.Spawn(EnhancedBeliefsDefOf.EB_UnfinishedIdeobook, pawn.Position, pawn.Map) as UnfinishedThing;
-            book.Creator = pawn;
-            book.workLeft = 45000f;
-            End();
+            return;
         }
+
+        var book = (UnfinishedThing)GenSpawn.Spawn(EnhancedBeliefsDefOf.EB_UnfinishedIdeobook, pawn.Position, pawn.Map);
+        book.Creator = pawn;
+        book.workLeft = InitialWork;
+        End();
     }
 }

@@ -1,13 +1,11 @@
-#nullable enable
-
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace EnhancedBeliefs;
 
-public partial class GameComponent_EnhancedBeliefs
+internal partial class GameComponent_EnhancedBeliefs
 {
-    public class PawnIdeoTracker : IEnumerable<KeyValuePair<Pawn, IdeoTrackerData>>
+    internal class PawnIdeoTracker : IEnumerable<KeyValuePair<Pawn, IdeoTrackerData>>
     {
 #pragma warning disable IDE0028 // Simplify collection initialization
         public ConditionalWeakTable<Pawn, IdeoTrackerData> pawnIdeoTrackerData = new();
@@ -28,9 +26,9 @@ public partial class GameComponent_EnhancedBeliefs
             }
             else
             {
-                if (data.pawn != pawn)
+                if (data.Pawn != pawn)
                 {
-                    Log.Error($"Tried to set IdeoTrackerData for pawn {pawn} but the data is for pawn {data.pawn}. This should not happen.");
+                    Log.Error($"Tried to set IdeoTrackerData for pawn {pawn} but the data is for pawn {data.Pawn}. This should not happen.");
                     return;
                 }
                 pawnIdeoTrackerData.AddOrUpdate(pawn, data);
@@ -53,7 +51,7 @@ public partial class GameComponent_EnhancedBeliefs
         }
 
         private readonly List<KeyValuePair<Pawn, IdeoTrackerData>> _tmpForEachList = [];
-        public void ForEach(System.Action<KeyValuePair<Pawn, IdeoTrackerData>> action)
+        public void ForEach(Action<KeyValuePair<Pawn, IdeoTrackerData>> action)
         {
             _tmpForEachList.AddRange(pawnIdeoTrackerData.Select(kvp => kvp));
             try
