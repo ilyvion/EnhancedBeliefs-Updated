@@ -285,4 +285,23 @@ internal class CompProperties_ReligiousBook : CompProperties
     {
         compClass = typeof(CompReligiousBook);
     }
+
+    public override IEnumerable<string> ConfigErrors(ThingDef parentDef)
+    {
+        foreach (var error in base.ConfigErrors(parentDef))
+        {
+            yield return error;
+        }
+
+        if (parentDef.comps.SingleOrDefault(c => c is CompProperties_Book) is not CompProperties_Book bookComp)
+        {
+            yield return "CompProperties_ReligiousBook must be also have a CompProperties_Book.";
+            yield break;
+        }
+
+        if (bookComp.doers.SingleOrDefault(d => d is BookOutcomeProperties_CertaintyChange) is not BookOutcomeProperties_CertaintyChange bookOutcomeCertaintyChange)
+        {
+            yield return "CompProperties_ReligiousBook must have a BookOutcomeProperties_CertaintyChange in its doers.";
+        }
+    }
 }
