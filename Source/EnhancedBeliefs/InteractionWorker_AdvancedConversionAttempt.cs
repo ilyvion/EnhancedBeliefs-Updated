@@ -22,7 +22,7 @@ namespace EnhancedBeliefs
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
             Ideo ideo = recipient.Ideo;
             Ideo newIdeo = initiator.Ideo;
-            IdeoTrackerData tracker = comp.pawnTrackerData[recipient];
+            IdeoTrackerData tracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(recipient);
             float certainty = recipient.ideo.Certainty;
             float opinion = tracker.IdeoOpinion(newIdeo);
 

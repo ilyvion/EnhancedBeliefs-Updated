@@ -16,7 +16,7 @@
 
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-		<NoWarn>CA1000;CA1051;CA1305;CA1310;CA1707;CA1708;CA1711;CA1725;CA1852;CA2201</NoWarn>
+		<NoWarn>CA1000;CA1051;CA1305;CA1310;CA1707;CA1708;CA1711;CA1725;CA1852;CA2201;IDE0008;IDE0160</NoWarn>
 
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>

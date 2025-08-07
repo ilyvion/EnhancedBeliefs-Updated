@@ -90,7 +90,7 @@ namespace EnhancedBeliefs
 
             Find.LetterStack.ReceiveLetter("Religious book destroyed", "{0}, an important religious book for {1}, has been destroyed. Followers of {1} won't be happy about it.".Formatted(parent, Ideo), Find.FactionManager.OfPlayer.ideos.IsPrimary(Ideo) ? LetterDefOf.NegativeEvent : LetterDefOf.NeutralEvent, new LookTargets(new TargetInfo[] { new TargetInfo(parent.PositionHeld, parent.MapHeld) }));
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            if (!comp.ideoPawnsList.ContainsKey(Ideo))
+            if (!comp.ideoPawnTracker.ContainsIdeo(Ideo))
             {
                 return;
             }
@@ -108,7 +108,7 @@ namespace EnhancedBeliefs
 
                 pawn.ideo.Certainty = Mathf.Clamp01(pawn.ideo.Certainty - CertaintyLossFromQualityCurve.Evaluate((int)parent.GetComp<CompQuality>().Quality));
                 pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(EnhancedBeliefsDefOf.EB_ReligiousBookDestroyed);
-                comp.pawnTrackerData[pawn].CheckConversion(excludeIdeos: new List<Ideo> { Ideo });
+                comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn).CheckConversion(excludeIdeos: new List<Ideo> { Ideo });
             }
         }
 
@@ -168,7 +168,7 @@ namespace EnhancedBeliefs
                 gizmo.disabledReason = null;
             }
 
-            for (int i = 0; i <  burners.Count; i++)
+            for (int i = 0; i < burners.Count; i++)
             {
                 Pawn pawn = burners[i];
                 options.Add(new FloatMenuOption(pawn.LabelShort, delegate ()

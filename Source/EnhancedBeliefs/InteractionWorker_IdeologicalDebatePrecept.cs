@@ -68,8 +68,8 @@ namespace EnhancedBeliefs
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
-            IdeoTrackerData initiatorTracker = comp.pawnTrackerData[initiator];
-            IdeoTrackerData recipientTracker = comp.pawnTrackerData[recipient];
+            IdeoTrackerData initiatorTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(initiator);
+            IdeoTrackerData recipientTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(recipient);
 
             Ideo initiatorIdeo = initiator.Ideo;
             Ideo recipientIdeo = recipient.Ideo;
@@ -213,7 +213,7 @@ namespace EnhancedBeliefs
                 return;
             }
 
-            IdeoTrackerData loserTracker = comp.pawnTrackerData[loser];
+            IdeoTrackerData loserTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(loser);
             loserTracker.AdjustPreceptOpinion(winnerPrecept, 0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
             loserTracker.AdjustPreceptOpinion(loserPrecept, -0.03f * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
         }

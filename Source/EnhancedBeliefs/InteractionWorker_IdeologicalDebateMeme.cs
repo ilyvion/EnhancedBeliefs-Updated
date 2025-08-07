@@ -68,8 +68,8 @@ namespace EnhancedBeliefs
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
-            IdeoTrackerData initiatorTracker = comp.pawnTrackerData[initiator];
-            IdeoTrackerData recipientTracker = comp.pawnTrackerData[recipient];
+            IdeoTrackerData initiatorTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(initiator);
+            IdeoTrackerData recipientTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(recipient);
 
             Ideo initiatorIdeo = initiator.Ideo;
             Ideo recipientIdeo = recipient.Ideo;
@@ -207,7 +207,7 @@ namespace EnhancedBeliefs
             }
 
             bool positiveOutcome = winner.Ideo.memes.Contains(topic);
-            IdeoTrackerData loserTracker = comp.pawnTrackerData[loser];
+            IdeoTrackerData loserTracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(loser);
             loserTracker.AdjustMemeOpinion(topic, (positiveOutcome ? 0.03f : -0.03f) * winner.GetStatValue(StatDefOf.ConversionPower) * loser.GetStatValue(StatDefOf.CertaintyLossFactor));
         }
     }

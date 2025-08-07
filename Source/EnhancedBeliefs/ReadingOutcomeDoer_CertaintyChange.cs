@@ -143,7 +143,7 @@ namespace EnhancedBeliefs
             }
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            IdeoTrackerData tracker = comp.pawnTrackerData[reader];
+            IdeoTrackerData tracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(reader);
 
             reader.ideo.Certainty = Mathf.Clamp01(reader.ideo.Certainty - certaintyGain * 0.25f);
             tracker.AdjustPersonalOpinion(ideo, certaintyGain);

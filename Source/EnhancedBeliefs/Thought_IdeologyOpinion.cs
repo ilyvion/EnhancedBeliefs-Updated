@@ -31,10 +31,10 @@ namespace EnhancedBeliefs
                 }
 
                 GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-                IdeoTrackerData tracker = comp.pawnTrackerData[pawn];
+                IdeoTrackerData tracker = comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn);
 
                 float opinion = tracker.IdeoOpinion(otherPawn.Ideo);
-                
+
                 if (opinion < 0.05f)
                 {
                     lastCachedStage = 0;

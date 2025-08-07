@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,7 +14,7 @@ using Verse.Noise;
 
 namespace EnhancedBeliefs
 {
-    public class GameComponent_EnhancedBeliefs : GameComponent
+    public partial class GameComponent_EnhancedBeliefs : GameComponent
     {
         // Days to percentage
         public static readonly SimpleCurve CertaintyLossFromInactivity = new SimpleCurve
@@ -59,26 +60,14 @@ namespace EnhancedBeliefs
             new CurvePoint(1000f,   0.6f),
         };
 
-        public Dictionary<Pawn, IdeoTrackerData> pawnTrackerData = new Dictionary<Pawn, IdeoTrackerData> ();
-        public Dictionary<Ideo, List<Pawn>> ideoPawnsList = new Dictionary<Ideo, List<Pawn>>();
+        public PawnIdeoTracker pawnTracker = new();
+        public IdeoPawnTracker ideoPawnTracker = new();
 
         public GameComponent_EnhancedBeliefs(Game game) { }
 
         public override void GameComponentTick()
         {
             base.GameComponentTick();
-        }
-
-        public IdeoTrackerData AddTracker(Pawn pawn)
-        {
-            IdeoTrackerData data = new IdeoTrackerData(pawn);
-            pawnTrackerData[pawn] = data;
-            return data;
-        }
-
-        public void AddIdeoTracker(Ideo ideo)
-        {
-            ideoPawnsList[ideo] = new List<Pawn>();
         }
 
         public float ConversionFactor(Pawn initiator, Pawn recipient)
@@ -88,21 +77,11 @@ namespace EnhancedBeliefs
 
         public void SetIdeo(Pawn pawn, Ideo ideo)
         {
-            if (!pawnTrackerData.ContainsKey(pawn))
+            _ = pawnTracker.EnsurePawnHasIdeoTracker(pawn);
+
+            foreach (var (ideo2, _) in ideoPawnTracker)
             {
-                AddTracker(pawn);
-            }
-
-            List<Ideo> ideoList = ideoPawnsList.Keys.ToList();
-
-            for (int i = 0; i < ideoList.Count; i++)
-            {
-                Ideo ideo2 = ideoList[i];
-
-                if (ideoPawnsList[ideo2].Contains(pawn))
-                {
-                    ideoPawnsList[ideo2].Remove(pawn);
-                }
+                _ = ideoPawnTracker.RemovePawnFromIdeoPawnTracker(ideo2, pawn);
             }
 
             if (ideo == null)
@@ -110,15 +89,7 @@ namespace EnhancedBeliefs
                 return;
             }
 
-            if (!ideoPawnsList.ContainsKey(ideo))
-            {
-                AddIdeoTracker(ideo);
-            }
-
-            if (!ideoPawnsList[ideo].Contains(pawn))
-            {
-                ideoPawnsList[ideo].Add(pawn);
-            }
+            ideoPawnTracker.EnsureIdeoPawnTrackerHasPawn(ideo, pawn);
         }
 
         public static int BeliefDifferences(Ideo ideo1, Ideo ideo2)
@@ -149,46 +120,28 @@ namespace EnhancedBeliefs
 
         public void BaseOpinionRecache(Ideo ideo)
         {
-            List<Pawn> pawns = pawnTrackerData.Keys.ToList();
-
-            for (int i = 0; i < pawns.Count; i++)
+            foreach (var (_, ideoTracker) in pawnTracker)
             {
-                pawnTrackerData[pawns[i]].baseIdeoOpinions[ideo] = pawnTrackerData[pawns[i]].DefaultIdeoOpinion(ideo);
+                ideoTracker.baseIdeoOpinions[ideo] = ideoTracker.DefaultIdeoOpinion(ideo);
             }
         }
 
         public List<Pawn> GetIdeoPawns(Ideo ideo)
         {
-            if (ideoPawnsList.ContainsKey(ideo))
+            if (ideoPawnTracker.TryGetPawnTracker(ideo, out var pawnList))
             {
-                return ideoPawnsList[ideo];
+                return pawnList;
             }
 
-            ideoPawnsList[ideo] = new List<Pawn>();
-            List<Pawn> pawns = PawnsFinder.All_AliveOrDead;
-
-            for (int i = 0; i < pawns.Count; i++)
+            foreach (Pawn pawn in PawnsFinder.All_AliveOrDead)
             {
-                Pawn pawn = pawns[i];
-
-                if (pawn.ideo != null && pawn.Ideo == ideo)
+                if (pawn.Ideo == ideo)
                 {
-                    ideoPawnsList[ideo].Add(pawn);
+                    ideoPawnTracker.EnsureIdeoPawnTrackerHasPawn(ideo, pawn);
                 }
             }
-            return ideoPawnsList[ideo];
-        }
 
-        public void RemoveTracker(IdeoTrackerData tracker)
-        {
-            foreach (KeyValuePair<Pawn, IdeoTrackerData> pair in pawnTrackerData)
-            {
-                if (pair.Value == tracker)
-                {
-                    pawnTrackerData.Remove(pair.Key);
-                    return;
-                }
-            }
+            return GetIdeoPawns(ideo);
         }
     }
 
@@ -249,11 +202,6 @@ namespace EnhancedBeliefs
 
                 return cachedOpinionMultiplier;
             }
-        }
-
-        public IdeoTrackerData()
-        {
-
         }
 
         public IdeoTrackerData(Pawn pawn)
@@ -521,7 +469,6 @@ namespace EnhancedBeliefs
 
                 if (pawn == null)
                 {
-                    comp.RemoveTracker(this);
                     return;
                 }
 
@@ -638,6 +585,8 @@ namespace EnhancedBeliefs
         }
 
         // Check if pawn should get converted to a new ideo after losing certainty in some way.
+        // TODO: This sounds like a method without side-effects, but it actually makes changes,
+        //       so go through the code and figure out what it actually does and then rename it to something more appropriate.
         public ConversionOutcome CheckConversion(Ideo priorityIdeo = null, bool noBreakdown = false, List<Ideo> excludeIdeos = null, List<Ideo> whitelistIdeos = null, float? opinionThreshold = null)
         {
             if (!ModLister.CheckIdeology("Ideoligion conversion") || pawn.DevelopmentalStage.Baby())
@@ -650,7 +599,7 @@ namespace EnhancedBeliefs
             }
 
             float certainty = pawn.ideo.Certainty;
-            
+
             if (certainty > 0.2f)
             {
                 return ConversionOutcome.Failure;
@@ -712,7 +661,7 @@ namespace EnhancedBeliefs
                 float[] rundown = DetailedIdeoOpinion(ideo);
                 pawn.ideo.Certainty = Mathf.Min(rundown[0], 0.2f) + rundown[1];
                 personalIdeoOpinions[ideo] = 0;
-                
+
                 // Keep current opinion of our old ideo by moving difference between new base and old base (certainty) into personal thoughts
                 AdjustPersonalOpinion(oldIdeo, certainty - DetailedIdeoOpinion(oldIdeo)[0]);
 

@@ -15,7 +15,6 @@ using static HarmonyLib.Code;
 
 namespace EnhancedBeliefs
 {
-    // Bootleg solution because prepatcher will scare off workshop dummies
     [HarmonyPatch(typeof(PawnComponentsUtility), nameof(PawnComponentsUtility.CreateInitialComponents))]
     public static class PawnComponentsUtility_Initialize
     {
@@ -32,31 +31,24 @@ namespace EnhancedBeliefs
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
 
-            if (!comp.pawnTrackerData.ContainsKey(pawn))
-            {
-                comp.AddTracker(pawn);
-                lastPawn = pawn;
-            }
+            _ = comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn);
+            lastPawn = pawn;
         }
     }
 
     [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.TryGenerateNewPawnInternal))]
     public static class PawnGenerator_Generate
     {
-        public static void Postfix(Pawn __result)
+        [HarmonyPostfix]
+        public static void CleanUpIfPawnGeneratedFailed([HarmonyArgument("__result")] Pawn generatedPawn)
         {
-            if (__result != null || PawnComponentsUtility_Initialize.lastPawn == null)
+            if (generatedPawn != null || PawnComponentsUtility_Initialize.lastPawn == null)
             {
                 return;
             }
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-
-            if (comp.pawnTrackerData.ContainsKey(PawnComponentsUtility_Initialize.lastPawn))
-            {
-                comp.pawnTrackerData.Remove(PawnComponentsUtility_Initialize.lastPawn);
-                PawnComponentsUtility_Initialize.lastPawn = null;
-            }
+            _ = comp.pawnTracker.RemoveTracker(PawnComponentsUtility_Initialize.lastPawn);
         }
     }
 
@@ -65,7 +57,8 @@ namespace EnhancedBeliefs
     {
         public static void Postfix(Ideo __instance)
         {
-            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().AddIdeoTracker(__instance);
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>()
+                .ideoPawnTracker.AddPawnTrackerToIdeo(__instance);
         }
     }
 
@@ -78,12 +71,8 @@ namespace EnhancedBeliefs
 
             Pawn pawn = __instance.pawn;
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(pawn);
 
-            if (data == null)
-            {
-                data = comp.AddTracker(pawn);
-            }
+            var data = comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn);
 
             // 4 recaches per second should be enough
             if (data.cachedCertaintyChange == -9999f || pawn.IsHashIntervalTick(GenTicks.TickRareInterval))
@@ -116,13 +105,7 @@ namespace EnhancedBeliefs
             if (!pawn.Destroyed && pawn.Map != null && __instance.ideo != null && !Find.IdeoManager.classicMode && pawn.IsHashIntervalTick(GenTicks.TickLongInterval))
             {
                 GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-                IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(pawn);
-
-                if (data == null)
-                {
-                    data = comp.AddTracker(pawn);
-                }
-
+                IdeoTrackerData data = comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn);
                 data.RecalculateRelationshipIdeoOpinions();
             }
         }
@@ -153,7 +136,7 @@ namespace EnhancedBeliefs
     {
         public static void Postfix(TraitSet __instance)
         {
-            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTrackerData?.TryGetValue(__instance.pawn)?.RecacheAllBaseOpinions();
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTracker?.TryGetIdeoTracker(__instance.pawn)?.RecacheAllBaseOpinions();
         }
     }
 
@@ -162,7 +145,7 @@ namespace EnhancedBeliefs
     {
         public static void Postfix(TraitSet __instance)
         {
-            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTrackerData?.TryGetValue(__instance.pawn)?.RecacheAllBaseOpinions();
+            Current.Game.GetComponent<GameComponent_EnhancedBeliefs>().pawnTracker?.TryGetIdeoTracker(__instance.pawn)?.RecacheAllBaseOpinions();
         }
     }
 
@@ -225,7 +208,7 @@ namespace EnhancedBeliefs
         public static void DrawOpinionTab(Rect containerRect, Pawn pawn, bool hovering)
         {
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            IdeoTrackerData data = comp.pawnTrackerData[pawn];
+            IdeoTrackerData data = comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn);
             opinionMenuOpen = true;
 
             if (hovering)
@@ -269,6 +252,7 @@ namespace EnhancedBeliefs
             for (int i = 0; i < Find.IdeoManager.ideos.Count; i++)
             {
                 Ideo ideo = Find.IdeoManager.ideos[i];
+                Log.Warning($"Ideo {i}: {ideo.name} ({ideo.id})");
 
                 Rect iconRect = new Rect(tabRect.x + 4, tabRect.y + 4 + i * 38f, 32f, 32f);
                 ideo.DrawIcon(iconRect);
@@ -323,7 +307,7 @@ namespace EnhancedBeliefs
             pawn.ideo.Certainty = Mathf.Clamp01(pawn.ideo.Certainty - 0.5f);
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            IdeoTrackerData data = comp.pawnTrackerData[pawn];
+            IdeoTrackerData data = comp.pawnTracker.EnsurePawnHasIdeoTracker(pawn);
 
             if (data.CheckConversion(noBreakdown: true, opinionThreshold: 0.4f) == ConversionOutcome.Success)
             {
@@ -379,13 +363,20 @@ namespace EnhancedBeliefs
             }
 
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            IdeoTrackerData data = comp.pawnTrackerData.TryGetValue(__instance);
+            IdeoTrackerData data = comp.pawnTracker.TryGetIdeoTracker(__instance);
 
-            Scribe_Deep.Look(ref data, "EB_IdeoTrackerData");
+            Scribe_Deep.Look(ref data, "EB_IdeoTrackerData", __instance);
 
             if (Scribe.mode != LoadSaveMode.Saving && data != null)
             {
-                comp.pawnTrackerData[__instance] = data;
+                if (data.pawn != null && data.pawn != __instance)
+                {
+                    Log.Warning($"Tried to scribe IdeoTrackerData for pawn {__instance} but "
+                        + $"the data is for pawn {data.pawn?.ToString() ?? "[null]"}. "
+                        + $"This should not happen. Overriding data pawn to match the current pawn.");
+                    data.pawn = __instance;
+                }
+                comp.pawnTracker.SetIdeoTracker(__instance, data);
             }
         }
     }
@@ -397,7 +388,7 @@ namespace EnhancedBeliefs
         public static bool Prefix(Pawn_IdeoTracker __instance, float certaintyReduction, Ideo initiatorIdeo, bool applyCertaintyFactor, ref bool __result)
         {
             GameComponent_EnhancedBeliefs comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
-            IdeoTrackerData data = comp.pawnTrackerData[__instance.pawn];
+            IdeoTrackerData data = comp.pawnTracker.EnsurePawnHasIdeoTracker(__instance.pawn);
             __result = data.OverrideConversionAttempt(certaintyReduction, initiatorIdeo, applyCertaintyFactor);
             return false;
         }
