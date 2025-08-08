@@ -1,7 +1,7 @@
-﻿using RimWorld.Planet;
-
-#if v1_5
+﻿#if v1_5
 using PlanetTile = int;
+#else
+using RimWorld.Planet;
 #endif
 
 namespace EnhancedBeliefs;

@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+#if !v1_5
 using System.Runtime.CompilerServices;
+#endif
 
 namespace EnhancedBeliefs;
 
@@ -8,7 +10,7 @@ internal partial class GameComponent_EnhancedBeliefs
     internal sealed class PawnIdeoTracker : IEnumerable<KeyValuePair<Pawn, IdeoTrackerData>>
     {
 #pragma warning disable IDE0028 // Simplify collection initialization
-        public ConditionalWeakTable<Pawn, IdeoTrackerData> pawnIdeoTrackerData = new();
+        private readonly ConditionalWeakTable<Pawn, IdeoTrackerData> pawnIdeoTrackerData = new();
 #pragma warning restore IDE0028 // Simplify collection initialization
 
         public IdeoTrackerData AddIdeoTrackerToPawn(Pawn pawn)
@@ -18,7 +20,7 @@ internal partial class GameComponent_EnhancedBeliefs
             return data;
         }
 
-        public void SetIdeoTracker(Pawn pawn, IdeoTrackerData data)
+        public void SetIdeoTracker(Pawn pawn, IdeoTrackerData? data)
         {
             if (data == null)
             {
@@ -72,12 +74,13 @@ internal partial class GameComponent_EnhancedBeliefs
             return pawnIdeoTrackerData.Remove(pawn);
         }
 
+#pragma warning disable CA1859
         public IEnumerator<KeyValuePair<Pawn, IdeoTrackerData>> GetEnumerator()
         {
             var enumerable = (IEnumerable<KeyValuePair<Pawn, IdeoTrackerData>>)pawnIdeoTrackerData;
-            //var tmpList = pawnIdeoTrackerData.Select(kvp => kvp).ToList();
             return enumerable.GetEnumerator();
         }
+#pragma warning restore CA1859
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {

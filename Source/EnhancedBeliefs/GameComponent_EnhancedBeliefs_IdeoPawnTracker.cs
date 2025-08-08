@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+#if !v1_5
 using System.Runtime.CompilerServices;
+#endif
 
 namespace EnhancedBeliefs;
 
@@ -64,12 +66,13 @@ internal partial class GameComponent_EnhancedBeliefs
             }
         }
 
+#pragma warning disable CA1859
         public IEnumerator<KeyValuePair<Ideo, List<Pawn>>> GetEnumerator()
         {
             var enumerable = (IEnumerable<KeyValuePair<Ideo, List<Pawn>>>)ideoPawnsTracker;
-            // var tmpList = ideoPawnsTracker.Select(kvp => kvp).ToList();
             return enumerable.GetEnumerator();
         }
+#pragma warning restore CA1859
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {

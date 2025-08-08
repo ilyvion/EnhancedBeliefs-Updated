@@ -93,7 +93,7 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
     private void TickAction()
     {
 #if v1_5
-            pawn.GainComfortFromCellIfPossible();
+        pawn.GainComfortFromCellIfPossible();
 #else
         pawn.GainComfortFromCellIfPossible(1);
 #endif
