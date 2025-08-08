@@ -49,28 +49,30 @@ internal static class SocialCardUtility_DrawCard
 
         var maxNameWidth = 0f;
 
-        foreach (var ideo in Find.IdeoManager.ideos)
+        var ideos = Find.IdeoManager.IdeosListForReading;
+
+        foreach (var ideo in ideos)
         {
             maxNameWidth = Math.Max(maxNameWidth, Text.CalcSize(ideo.name).x);
         }
 
-        Rect opinionRect = new(containerRect.x, containerRect.y + 40f, 264f + maxNameWidth, (Math.Min(Find.IdeoManager.ideos.Count, maxIdeosPreview) * 38f) + 8f);
+        Rect opinionRect = new(containerRect.x, containerRect.y + 40f, 264f + maxNameWidth, (Math.Min(ideos.Count, maxIdeosPreview) * 38f) + 8f);
 
         var tabRect = opinionRect.ContractedBy(4f);
-        tabRect.height = Find.IdeoManager.ideos.Count * 38f;
+        tabRect.height = ideos.Count * 38f;
         hoverRect = new Rect(opinionRect.x, opinionRect.y - 8f, opinionRect.width, opinionRect.height + 8f);
 
         Widgets.DrawShadowAround(opinionRect);
         Widgets.DrawWindowBackground(opinionRect);
 
-        if (Find.IdeoManager.ideos.Count > maxIdeosPreview)
+        if (ideos.Count > maxIdeosPreview)
         {
             Widgets.BeginScrollView(opinionRect, ref scroll, tabRect, false);
         }
 
-        for (var i = 0; i < Find.IdeoManager.ideos.Count; i++)
+        for (var i = 0; i < ideos.Count; i++)
         {
-            var ideo = Find.IdeoManager.ideos[i];
+            var ideo = ideos[i];
             //Log.Warning($"Ideo {i}: {ideo.name} ({ideo.id})");
 
             Rect iconRect = new(tabRect.x + 4, tabRect.y + 4 + (i * 38f), 32f, 32f);
@@ -106,7 +108,7 @@ internal static class SocialCardUtility_DrawCard
             }
         }
 
-        if (Find.IdeoManager.ideos.Count > maxIdeosPreview)
+        if (ideos.Count > maxIdeosPreview)
         {
             Widgets.EndScrollView();
         }

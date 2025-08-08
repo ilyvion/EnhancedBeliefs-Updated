@@ -216,12 +216,12 @@ internal class CompReligiousBook : ThingComp
     {
         if (burners.Count == 0)
         {
-            gizmo.disabled = true;
+            gizmo.Disabled = true;
             gizmo.disabledReason = "No colonists can destroy {0}.".Formatted(thing);
         }
         else
         {
-            gizmo.disabled = false;
+            gizmo.Disabled = false;
             gizmo.disabledReason = null;
         }
     }

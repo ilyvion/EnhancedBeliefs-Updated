@@ -11,7 +11,7 @@ internal class JobDriver_BurnReligiousBook : JobDriver
         return pawn.Reserve(Book, job, 1, -1, null, errorOnFailed, true);
     }
 
-    public override IEnumerable<Toil> MakeNewToils()
+    protected override IEnumerable<Toil> MakeNewToils()
     {
         _ = this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
         _ = this.FailOn(delegate

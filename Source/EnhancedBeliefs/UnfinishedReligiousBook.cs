@@ -32,7 +32,7 @@ internal class UnfinishedReligiousBook : UnfinishedThing
         Scribe_Values.Look(ref isOpen, "isOpen", false);
     }
 
-    public override void DrawAt(Vector3 drawLoc, bool flip = false)
+    protected override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
         if (!isOpen)
         {

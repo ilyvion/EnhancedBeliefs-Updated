@@ -10,7 +10,7 @@ internal class StockGenerator_IdeoBook : StockGenerator_SingleDef
 {
     public override IEnumerable<Thing> GenerateThings(PlanetTile forTile, Faction? faction = null)
     {
-        foreach (var book in StockGeneratorUtility.TryMakeForStock(thingDef, RandomCountOf(thingDef), faction).Cast<Book>())
+        foreach (var book in base.GenerateThings(forTile, faction).Cast<Book>())
         {
             foreach (var doer in book.BookComp.Doers)
             {

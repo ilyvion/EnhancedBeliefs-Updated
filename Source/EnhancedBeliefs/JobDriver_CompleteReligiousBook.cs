@@ -12,7 +12,7 @@ internal class JobDriver_CompleteReligiousBook : JobDriver
         return pawn.Reserve(Book, job, 1, -1, null, errorOnFailed) && pawn.Reserve(Lectern, job, 1, -1, null, errorOnFailed);
     }
 
-    public override IEnumerable<Toil> MakeNewToils()
+    protected override IEnumerable<Toil> MakeNewToils()
     {
         _ = this.FailOnDestroyedOrNull(TargetIndex.A);
         _ = this.FailOnDestroyedOrNull(TargetIndex.B);
