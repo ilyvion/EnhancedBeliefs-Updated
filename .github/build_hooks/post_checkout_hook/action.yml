@@ -1,0 +1,12 @@
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout rimworld-utils Repository
+      uses: actions/checkout@v4
+      with:
+        repository: "ilyvion/rimworld-utils"
+        path: "rimworld-utils"
+
+    - name: Move to parent, where it's expected
+      shell: bash
+      run: mv rimworld-utils ..
