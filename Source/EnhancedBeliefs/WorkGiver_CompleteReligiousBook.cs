@@ -2,7 +2,7 @@
 
 namespace EnhancedBeliefs;
 
-internal class WorkGiver_CompleteReligiousBook : WorkGiver_Scanner
+internal sealed class WorkGiver_CompleteReligiousBook : WorkGiver_Scanner
 {
     public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForDef(EnhancedBeliefsDefOf.EB_UnfinishedIdeobook);
     public override PathEndMode PathEndMode => PathEndMode.Touch;

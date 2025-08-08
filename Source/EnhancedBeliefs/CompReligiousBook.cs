@@ -1,7 +1,7 @@
 ﻿namespace EnhancedBeliefs;
 
 [StaticConstructorOnStartup]
-internal class CompReligiousBook : ThingComp
+internal sealed class CompReligiousBook : ThingComp
 {
     public CompProperties_ReligiousBook Props => (CompProperties_ReligiousBook)props;
     private ReadingOutcomeDoer_CertaintyChange? outcome;
@@ -279,7 +279,7 @@ internal class CompReligiousBook : ThingComp
     }
 }
 
-internal class CompProperties_ReligiousBook : CompProperties
+internal sealed class CompProperties_ReligiousBook : CompProperties
 {
     public CompProperties_ReligiousBook()
     {

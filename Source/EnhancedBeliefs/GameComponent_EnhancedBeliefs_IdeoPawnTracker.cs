@@ -5,7 +5,7 @@ namespace EnhancedBeliefs;
 
 internal partial class GameComponent_EnhancedBeliefs
 {
-    internal class IdeoPawnTracker : IEnumerable<KeyValuePair<Ideo, List<Pawn>>>
+    internal sealed class IdeoPawnTracker : IEnumerable<KeyValuePair<Ideo, List<Pawn>>>
     {
 #pragma warning disable IDE0028 // Simplify collection initialization
         public ConditionalWeakTable<Ideo, List<Pawn>> ideoPawnsTracker = new();

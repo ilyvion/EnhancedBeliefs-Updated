@@ -2,7 +2,7 @@
 
 namespace EnhancedBeliefs;
 
-internal class MentalState_Iconoclast : MentalState_Tantrum
+internal sealed class MentalState_Iconoclast : MentalState_Tantrum
 {
     public int booksLeft = -1;
     private static readonly List<Thing> tmpThings = [];

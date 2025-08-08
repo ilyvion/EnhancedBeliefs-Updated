@@ -2,7 +2,7 @@
 
 namespace EnhancedBeliefs;
 
-internal class JobDriver_BurnReligiousBook : JobDriver
+internal sealed class JobDriver_BurnReligiousBook : JobDriver
 {
     public Book Book => (Book)TargetThingA;
 

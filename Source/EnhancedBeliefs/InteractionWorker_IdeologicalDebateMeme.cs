@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class InteractionWorker_IdeologicalDebateMeme : InteractionWorker
+internal sealed class InteractionWorker_IdeologicalDebateMeme : InteractionWorker
 {
     public MemeDef? topic;
 

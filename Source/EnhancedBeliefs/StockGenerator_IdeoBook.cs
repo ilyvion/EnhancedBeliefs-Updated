@@ -6,7 +6,7 @@ using PlanetTile = int;
 
 namespace EnhancedBeliefs;
 
-internal class StockGenerator_IdeoBook : StockGenerator_SingleDef
+internal sealed class StockGenerator_IdeoBook : StockGenerator_SingleDef
 {
     public override IEnumerable<Thing> GenerateThings(PlanetTile forTile, Faction? faction = null)
     {

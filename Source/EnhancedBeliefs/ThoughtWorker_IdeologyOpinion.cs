@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class ThoughtWorker_IdeologyOpinion : ThoughtWorker
+internal sealed class ThoughtWorker_IdeologyOpinion : ThoughtWorker
 {
     protected override ThoughtState CurrentSocialStateInternal(Pawn p, Pawn otherPawn)
     {

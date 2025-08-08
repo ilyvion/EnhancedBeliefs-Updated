@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class InspirationWorker_ReligiousBook : InspirationWorker
+internal sealed class InspirationWorker_ReligiousBook : InspirationWorker
 {
     public override bool InspirationCanOccur(Pawn pawn)
     {

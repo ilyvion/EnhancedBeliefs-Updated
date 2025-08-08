@@ -2,7 +2,7 @@
 
 namespace EnhancedBeliefs;
 
-internal class MentalStateWorker_Iconoclast : MentalStateWorker
+internal sealed class MentalStateWorker_Iconoclast : MentalStateWorker
 {
     private static readonly List<Thing> tmpThings = [];
 

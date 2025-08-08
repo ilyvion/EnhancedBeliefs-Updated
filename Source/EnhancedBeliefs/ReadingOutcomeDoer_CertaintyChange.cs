@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class ReadingOutcomeDoer_CertaintyChange : BookOutcomeDoer
+internal sealed class ReadingOutcomeDoer_CertaintyChange : BookOutcomeDoer
 {
     public new BookOutcomeProperties_CertaintyChange Props => (BookOutcomeProperties_CertaintyChange)props;
 
@@ -119,7 +119,7 @@ internal class ReadingOutcomeDoer_CertaintyChange : BookOutcomeDoer
     }
 }
 
-internal class BookOutcomeProperties_CertaintyChange : BookOutcomeProperties
+internal sealed class BookOutcomeProperties_CertaintyChange : BookOutcomeProperties
 {
     public override Type DoerClass => typeof(ReadingOutcomeDoer_CertaintyChange);
 }

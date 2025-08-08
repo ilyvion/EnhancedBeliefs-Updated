@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class Inspiration_ReligiousBook : Inspiration
+internal sealed class Inspiration_ReligiousBook : Inspiration
 {
     public const float InitialWork = 45000f;
 

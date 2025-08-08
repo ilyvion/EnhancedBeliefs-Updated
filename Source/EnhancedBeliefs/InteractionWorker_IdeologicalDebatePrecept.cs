@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class InteractionWorker_IdeologicalDebatePrecept : InteractionWorker
+internal sealed class InteractionWorker_IdeologicalDebatePrecept : InteractionWorker
 {
     public IssueDef? topic;
 

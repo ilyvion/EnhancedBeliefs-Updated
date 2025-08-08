@@ -5,7 +5,7 @@ namespace EnhancedBeliefs.HarmonyPatches;
 internal static class SocialCardUtility_DrawCard
 {
     private static Rect hoverRect;
-    private static bool opinionMenuOpen = false;
+    private static bool opinionMenuOpen;
     private static Vector2 scroll;
     public const int maxIdeosPreview = 10;
 

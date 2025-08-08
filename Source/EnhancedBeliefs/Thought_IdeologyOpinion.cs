@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class Thought_IdeologyOpinion : Thought_SituationalSocial
+internal sealed class Thought_IdeologyOpinion : Thought_SituationalSocial
 {
     public int lastCacheTick = -1;
     public int lastCachedStage = 2;

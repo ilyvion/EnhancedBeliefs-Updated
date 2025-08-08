@@ -2,7 +2,7 @@
 
 namespace EnhancedBeliefs;
 
-internal class JobDriver_CompleteReligiousBook : JobDriver
+internal sealed class JobDriver_CompleteReligiousBook : JobDriver
 {
     public UnfinishedReligiousBook Book => (UnfinishedReligiousBook)TargetThingA;
     public Building Lectern => (Building)TargetThingB;

@@ -2,7 +2,7 @@
 
 namespace EnhancedBeliefs;
 
-internal class EnhancedBeliefsMod : Mod
+internal sealed class EnhancedBeliefsMod : Mod
 {
     public EnhancedBeliefsMod(ModContentPack content) : base(content)
     {

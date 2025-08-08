@@ -10,7 +10,7 @@ using RimWorld.Planet;
 
 namespace EnhancedBeliefs;
 
-internal class BookIdeo : Book
+internal sealed class BookIdeo : Book
 {
     private ReadingOutcomeDoer_CertaintyChange? doer;
     public ReadingOutcomeDoer_CertaintyChange Doer

@@ -1,6 +1,6 @@
 ﻿namespace EnhancedBeliefs;
 
-internal class InteractionWorker_AdvancedConversionAttempt : InteractionWorker_ConvertIdeoAttempt
+internal sealed class InteractionWorker_AdvancedConversionAttempt : InteractionWorker_ConvertIdeoAttempt
 {
     public override void Interacted(
         Pawn initiator,

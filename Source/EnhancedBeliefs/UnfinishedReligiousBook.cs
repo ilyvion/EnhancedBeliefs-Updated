@@ -1,10 +1,10 @@
 ﻿
 namespace EnhancedBeliefs;
 
-internal class UnfinishedReligiousBook : UnfinishedThing
+internal sealed class UnfinishedReligiousBook : UnfinishedThing
 {
     public Ideo? ideo;
-    public bool isOpen = false;
+    public bool isOpen;
     public UnfinishedBookExtension? extension;
 
     public UnfinishedBookExtension Extension
@@ -47,7 +47,7 @@ internal class UnfinishedReligiousBook : UnfinishedThing
     }
 }
 
-internal class UnfinishedBookExtension : DefModExtension
+internal sealed class UnfinishedBookExtension : DefModExtension
 {
 #pragma warning disable CS0649 // Set by RimWorld, ensured by ConfigErrors
     public GraphicData? openGraphic;

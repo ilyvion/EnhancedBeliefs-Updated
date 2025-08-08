@@ -1,7 +1,7 @@
 ﻿namespace EnhancedBeliefs;
 
 #pragma warning disable CS9113 // Parameter is unread.
-internal partial class GameComponent_EnhancedBeliefs(Game game) : GameComponent
+internal sealed partial class GameComponent_EnhancedBeliefs(Game game) : GameComponent
 #pragma warning restore CS9113 // Parameter is unread.
 {
     // Days to percentage
@@ -134,7 +134,7 @@ internal partial class GameComponent_EnhancedBeliefs(Game game) : GameComponent
     }
 }
 
-internal class IdeoTrackerData(Pawn pawn) : IExposable
+internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 {
     private Pawn pawn = pawn;
     public Pawn Pawn => pawn;
