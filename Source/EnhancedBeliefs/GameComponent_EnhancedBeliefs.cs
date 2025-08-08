@@ -675,20 +675,17 @@ internal class IdeoTrackerData(Pawn pawn) : IExposable
             return false;
         }
 
-        var num = Mathf.Clamp01(Pawn.ideo.Certainty + (applyCertaintyFactor ? Pawn.ideo.ApplyCertaintyChangeFactor(0f - certaintyReduction) : (0f - certaintyReduction)));
+        var newCertainty = Mathf.Clamp01(Pawn.ideo.Certainty + (applyCertaintyFactor ? Pawn.ideo.ApplyCertaintyChangeFactor(0f - certaintyReduction) : (0f - certaintyReduction)));
 
-        if (Pawn.Spawned)
-        {
-            string text = "Certainty".Translate() + "\n" + Pawn.ideo.Certainty.ToStringPercent() + " -> " + num.ToStringPercent();
-            MoteMaker.ThrowText(Pawn.DrawPos, Pawn.Map, text, 8f);
-        }
+        EnhancedBeliefsUtilities.ShowCertaintyChangeMote(Pawn, Pawn.ideo.Certainty, newCertainty);
 
         var ideoOpinion = PersonalIdeoOpinion(Pawn.Ideo);
-
         if (ideoOpinion > 0)
         {
             AdjustPersonalOpinion(Pawn.Ideo, Math.Max(ideoOpinion * -0.01f, -0.25f * certaintyReduction));
         }
+
+        Pawn.ideo.Certainty = newCertainty;
 
         return CheckConversion(newIdeo) == ConversionOutcome.Success;
     }

@@ -21,4 +21,15 @@ internal static class EnhancedBeliefsUtilities
 
         return comps;
     }
+
+    internal static void ShowCertaintyChangeMote(Pawn recipient, float before, float after)
+    {
+        if (!recipient.Spawned)
+        {
+            return;
+        }
+
+        string text = "Certainty".Translate() + "\n" + before.ToStringPercent() + " -> " + after.ToStringPercent();
+        MoteMaker.ThrowText(recipient.DrawPos, recipient.Map, text, 8f);
+    }
 }

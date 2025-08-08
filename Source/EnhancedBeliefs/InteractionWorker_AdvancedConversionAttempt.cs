@@ -30,7 +30,7 @@ internal class InteractionWorker_AdvancedConversionAttempt : InteractionWorker_C
         UpdateCertaintyAndOpinions(recipient, recipientIdeo, recipientTracker, initiatorIdeo, conversionPower);
 
         // 3) Feedback mote
-        ShowCertaintyChangeMote(recipient, certaintyBefore, recipient.ideo.Certainty);
+        EnhancedBeliefsUtilities.ShowCertaintyChangeMote(recipient, certaintyBefore, recipient.ideo.Certainty);
 
         // 4) Try success path (may set letter fields and return early)
         if (TryHandleSuccessfulConversion(initiator, recipient, recipientTracker, initiatorIdeo, recipientIdeo, conversionPower, extraSentencePacks,
@@ -78,17 +78,6 @@ internal class InteractionWorker_AdvancedConversionAttempt : InteractionWorker_C
         {
             recipientTracker.AdjustPersonalOpinion(recipientIdeo, Math.Max(ideoOpinion * -0.01f, -0.02f * conversionPower));
         }
-    }
-
-    private static void ShowCertaintyChangeMote(Pawn recipient, float before, float after)
-    {
-        if (!recipient.Spawned)
-        {
-            return;
-        }
-
-        string text = "Certainty".Translate() + "\n" + before.ToStringPercent() + " -> " + after.ToStringPercent();
-        MoteMaker.ThrowText(recipient.DrawPos, recipient.Map, text, 8f);
     }
 
     private static bool TryHandleSuccessfulConversion(
