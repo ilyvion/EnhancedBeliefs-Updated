@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-08-08
+
 ### Fixed
 
 - Conversion ability now actually causes reduction in certainty on targeted pawn.
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Project layout changed to match how ilyvion works.
 
-[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.1..v0.2.0
 [0.1.1]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.1.0..v0.1.1
 [0.1.0]: https://github.com/ilyvion/EnhancedBeliefs-Updated/releases/tag/v0.1.0
