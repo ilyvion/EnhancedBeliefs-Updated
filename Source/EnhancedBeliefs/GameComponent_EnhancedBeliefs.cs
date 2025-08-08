@@ -72,7 +72,7 @@ internal partial class GameComponent_EnhancedBeliefs(Game game) : GameComponent
     {
         _ = PawnTracker.EnsurePawnHasIdeoTracker(pawn);
 
-        foreach (var (ideo2, _) in IdeoTracker)
+        foreach (var ideo2 in IdeoTracker.Select(kvp => kvp.Key).ToList())
         {
             _ = IdeoTracker.RemovePawnFromIdeoPawnTracker(ideo2, pawn);
         }
@@ -109,7 +109,7 @@ internal partial class GameComponent_EnhancedBeliefs(Game game) : GameComponent
 
     public void BaseOpinionRecache(Ideo ideo)
     {
-        foreach (var (_, ideoTracker) in PawnTracker)
+        foreach (var ideoTracker in PawnTracker.Select(kvp => kvp.Value).ToList())
         {
             ideoTracker.SetIdeoBaseOpinion(ideo, ideoTracker.DefaultIdeoOpinion(ideo));
         }
@@ -558,7 +558,7 @@ internal class IdeoTrackerData(Pawn pawn) : IExposable
 
     public void RecacheAllBaseOpinions()
     {
-        foreach (var ideo in baseIdeoOpinions.Keys)
+        foreach (var ideo in baseIdeoOpinions.Keys.ToList())
         {
             baseIdeoOpinions[ideo] = DefaultIdeoOpinion(ideo);
         }

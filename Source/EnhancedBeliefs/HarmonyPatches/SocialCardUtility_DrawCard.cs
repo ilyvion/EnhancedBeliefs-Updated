@@ -71,7 +71,7 @@ internal static class SocialCardUtility_DrawCard
         for (var i = 0; i < Find.IdeoManager.ideos.Count; i++)
         {
             var ideo = Find.IdeoManager.ideos[i];
-            Log.Warning($"Ideo {i}: {ideo.name} ({ideo.id})");
+            //Log.Warning($"Ideo {i}: {ideo.name} ({ideo.id})");
 
             Rect iconRect = new(tabRect.x + 4, tabRect.y + 4 + (i * 38f), 32f, 32f);
             ideo.DrawIcon(iconRect);
