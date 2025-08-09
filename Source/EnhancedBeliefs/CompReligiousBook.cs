@@ -207,8 +207,8 @@ internal sealed class CompReligiousBook : ThingComp
         {
             defaultLabel = "Burn {0}".Formatted(parent),
             defaultDesc = Ideo != null
-                ? "Destroy {0} by burning it. This will upset {1} of {2}".Formatted(parent, Ideo.MemberNamePlural, Ideo)
-                : "Destroy {0} by burning it.".Formatted(parent),
+                ? "EnhancedBeliefs.DestroyBookByBurningItUpsetIdeo".Translate(parent.Named("BOOK"), Ideo.Named("IDEO"))
+                : "EnhancedBeliefs.DestroyBookByBurningIt".Translate(parent.Named("BOOK")),
             icon = burnBookGizmoTexture
         };
     }
@@ -218,7 +218,7 @@ internal sealed class CompReligiousBook : ThingComp
         if (burners.Count == 0)
         {
             gizmo.Disabled = true;
-            gizmo.disabledReason = "No colonists can destroy {0}.".Formatted(thing);
+            gizmo.disabledReason = "EnhancedBeliefs.NoColonistCanDestroy".Translate(thing.Named("BOOK"));
         }
         else
         {
@@ -235,8 +235,8 @@ internal sealed class CompReligiousBook : ThingComp
             options.Add(new FloatMenuOption(pawn.LabelShort, delegate ()
             {
                 var text = Ideo != null
-                    ? "Are you sure you want to make {0} burn {1}? Doing so will greatly upset all {2} of {3}.".Formatted(pawn, parent, Ideo.MemberNamePlural, Ideo)
-                    : "Are you sure you want to make {0} burn {1}?".Formatted(pawn, parent);
+                    ? "EnhancedBeliefs.ConfirmDestroyBookByBurningItUpsetIdeo".Translate(pawn.Named("PAWN"), parent.Named("BOOK"), Ideo.Named("IDEO"))
+                    : "EnhancedBeliefs.ConfirmDestroyBookByBurningIt".Translate(pawn.Named("PAWN"), parent.Named("BOOK"));
 
                 Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(text, delegate ()
                 {

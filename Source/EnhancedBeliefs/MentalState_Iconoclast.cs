@@ -2,6 +2,7 @@
 
 namespace EnhancedBeliefs;
 
+// TODO: Replace with custom mental state and related job that finds books and lights them on fire.
 internal sealed class MentalState_Iconoclast : MentalState_Tantrum
 {
     public int booksLeft = -1;

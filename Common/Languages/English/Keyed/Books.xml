@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <EnhancedBeliefs.BookReadingBenefit>{IDEO} - {1} certainty gain per second</EnhancedBeliefs.BookReadingBenefit>
+
+    <!-- Book burning/destruction -->
+    <EnhancedBeliefs.LetterReligiousBookDestroyedLabel>Religious book destroyed</EnhancedBeliefs.LetterReligiousBookDestroyedLabel>
+    <EnhancedBeliefs.LetterReligiousBookDestroyedText>{BOOK}, an important religious book for {IDEO}, has been destroyed. Followers of {IDEO} won't be happy about it.</EnhancedBeliefs.LetterReligiousBookDestroyedText>
+    <EnhancedBeliefs.DestroyBookByBurningItUpsetIdeo>Destroy {BOOK} by burning it. This will upset {IDEO_memberNamePlural} of {IDEO}.</EnhancedBeliefs.DestroyBookByBurningItUpsetIdeo>
+    <EnhancedBeliefs.DestroyBookByBurningIt>Destroy {BOOK} by burning it.</EnhancedBeliefs.DestroyBookByBurningIt>
+    <EnhancedBeliefs.NoColonistCanDestroy>No colonist can destroy {BOOK}.</EnhancedBeliefs.NoColonistCanDestroy>
+    <EnhancedBeliefs.ConfirmDestroyBookByBurningItUpsetIdeo>Are you sure you want to make {PAWN} burn {BOOK}? Doing so will greatly upset all {IDEO_memberNamePlural} of {IDEO}.</EnhancedBeliefs.ConfirmDestroyBookByBurningItUpsetIdeo>
+    <EnhancedBeliefs.ConfirmDestroyBookByBurningIt>Are you sure you want to make {PAWN} burn {BOOK}?</EnhancedBeliefs.ConfirmDestroyBookByBurningIt>
+    <EnhancedBeliefs.BookBurningSuccess>{PAWN} has destroyed {BOOK}. This has greatly upset {IDEO_memberNamePlural} of {IDEO}.</EnhancedBeliefs.BookBurningSuccess>
+</LanguageData>

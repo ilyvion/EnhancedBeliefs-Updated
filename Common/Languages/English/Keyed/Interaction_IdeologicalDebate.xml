@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <EnhancedBeliefs.IdeologicalDebateOutcomeSocialFight>{PAWN1_labelShort} tried to debate ideological views with {PAWN2_labelShort}. This led to a social fight!</EnhancedBeliefs.IdeologicalDebateOutcomeSocialFight>
+    <EnhancedBeliefs.LetterIdeologicalDebateConversionText>Debates between {CONVINCER_labelShort} and {CONVINCED_labelShort} resulted in {CONVINCED_labelShort} turning away from {OLDIDEO} and towards {NEWIDEO}.</EnhancedBeliefs.LetterIdeologicalDebateConversionText>
+</LanguageData>

@@ -54,8 +54,8 @@ internal sealed class JobDriver_BurnReligiousBook : JobDriver
             if (ideo != null)
             {
                 Messages.Message(
-                    "{0} has destroyed {1}. This has greatly upset {2} of {3}."
-                        .Formatted(pawn, Book, ideo.MemberNamePlural, ideo),
+                    "EnhancedBeliefs.BookBurningSuccess".Translate(
+                        pawn.Named("PAWN"), Book.Named("BOOK"), ideo.Named("IDEO")),
                     pawn,
                     Find.FactionManager.OfPlayer.ideos.PrimaryIdeo == ideo
                         ? MessageTypeDefOf.NegativeEvent

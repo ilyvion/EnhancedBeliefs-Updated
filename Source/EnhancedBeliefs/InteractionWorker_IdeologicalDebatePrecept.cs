@@ -128,7 +128,7 @@ internal sealed class InteractionWorker_IdeologicalDebatePrecept : InteractionWo
 
         if (Rand.Value < socialFightChance)
         {
-            recipient.interactions.StartSocialFight(initiator, "{PAWN1_nameDef} tried to debate ideological views with {PAWN2_nameDef}. This led to a social fight!");
+            recipient.interactions.StartSocialFight(initiator, "EnhancedBeliefs.IdeologicalDebateOutcomeSocialFight");
             return true;
         }
 
@@ -174,7 +174,7 @@ internal sealed class InteractionWorker_IdeologicalDebatePrecept : InteractionWo
             if (PawnUtility.ShouldSendNotificationAbout(initiator) || PawnUtility.ShouldSendNotificationAbout(recipient))
             {
                 letterLabel = "LetterLabelConvertIdeoAttempt_Success".Translate();
-                letterText = "Debates between {0] and {1} resulted in {1} turning away from {2} and towards {3}.".Formatted(initiator, recipient, initiatorIdeo, initiator.Ideo);
+                letterText = "EnhancedBeliefs.LetterIdeologicalDebateConversionText".Translate(initiator.Named("CONVINCED"), recipient.Named("CONVINCER"), initiatorIdeo.Named("OLDIDEO"), initiator.Ideo.Named("NEWIDEO"));
                 letterDef = LetterDefOf.NeutralEvent;
                 lookTargets = new LookTargets(recipient, initiator);
                 var role = initiatorIdeo.GetRole(initiator);
@@ -190,7 +190,7 @@ internal sealed class InteractionWorker_IdeologicalDebatePrecept : InteractionWo
             if (PawnUtility.ShouldSendNotificationAbout(initiator) || PawnUtility.ShouldSendNotificationAbout(recipient))
             {
                 letterLabel = "LetterLabelConvertIdeoAttempt_Success".Translate();
-                letterText = "Debates between {0] and {1} resulted in {1} turning away from {2} and towards {3}.".Formatted(recipient, initiator, recipientIdeo, recipient.Ideo);
+                letterText = "EnhancedBeliefs.LetterIdeologicalDebateConversionText".Translate(recipient.Named("CONVINCED"), initiator.Named("CONVINCER"), recipientIdeo.Named("OLDIDEO"), recipient.Ideo.Named("NEWIDEO"));
                 letterDef = LetterDefOf.NeutralEvent;
                 lookTargets = new LookTargets(initiator, recipient);
                 var role = recipientIdeo.GetRole(recipient);
