@@ -271,7 +271,6 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
             _ = IdeoOpinion(ideo);
         }
 
-        Log.Message($"DetailedIdeoOpinion: {ideo.name} - {Pawn.Name} - {Pawn.ideo.Certainty}");
         return new DetailedIdeoOpinion
         (
              ideo == Pawn.Ideo ? Pawn.ideo.Certainty : baseIdeoOpinions[ideo] / 100f,

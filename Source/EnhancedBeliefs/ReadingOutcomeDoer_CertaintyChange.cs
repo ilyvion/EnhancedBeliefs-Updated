@@ -72,7 +72,7 @@ internal sealed class ReadingOutcomeDoer_CertaintyChange : BookOutcomeDoer
 
     public override string GetBenefitsString(Pawn? reader = null)
     {
-        return "EnhancedBeliefs.BookReadingBenefit".Translate(ideo, (CertaintyGain(reader) * GenTicks.TicksPerRealSecond).ToStringPercent());
+        return "EnhancedBeliefs.BookReadingBenefit".Translate(ideo.Named("IDEO"), (CertaintyGain(reader) * GenTicks.TicksPerRealSecond).ToStringPercent());
     }
 
     public float CertaintyGain(Pawn? reader = null)
