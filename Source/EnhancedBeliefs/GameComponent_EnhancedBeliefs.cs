@@ -222,17 +222,14 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
     {
         CachedCertaintyChange = 0;
         List<Thought> thoughts = [];
-        Pawn.needs.mood.thoughts.GetAllMoodThoughts(thoughts);
+        Pawn.needs?.mood?.thoughts?.GetAllMoodThoughts(thoughts);
         float moodSum = 0;
 
-        if (Pawn.needs?.mood?.thoughts != null)
+        foreach (var thought in thoughts)
         {
-            foreach (var thought in thoughts)
+            if (thought.sourcePrecept != null || thought.def.Worker is ThoughtWorker_Precept)
             {
-                if (thought.sourcePrecept != null || thought.def.Worker is ThoughtWorker_Precept)
-                {
-                    moodSum += thought.MoodOffset();
-                }
+                moodSum += thought.MoodOffset();
             }
         }
 
