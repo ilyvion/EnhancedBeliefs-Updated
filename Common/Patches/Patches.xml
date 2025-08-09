@@ -37,5 +37,12 @@
 			</li>
 		</value>
 	</Operation>
-	
+
+	<Operation Class="PatchOperationInsert">
+		<xpath>Defs/ThingDef[@Name="BasePawn"]/inspectorTabs/li[text()="ITab_Pawn_Social"]</xpath>
+		<value>
+			<li>EnhancedBeliefs.ITab_Opinion</li>
+		</value>
+	</Operation>
+
 </Patch>
