@@ -1,6 +1,7 @@
 ﻿namespace EnhancedBeliefs;
 
 [StaticConstructorOnStartup]
+[HotSwappable]
 internal sealed class CompReligiousBook : ThingComp
 {
     public CompProperties_ReligiousBook Props => (CompProperties_ReligiousBook)props;
@@ -117,8 +118,8 @@ internal sealed class CompReligiousBook : ThingComp
     private void SendDestructionLetter()
     {
         Find.LetterStack.ReceiveLetter(
-            "Religious book destroyed",
-            "{0}, an important religious book for {1}, has been destroyed. Followers of {1} won't be happy about it.".Formatted(parent, Ideo),
+            "EnhancedBeliefs.LetterReligiousBookDestroyedLabel".Translate(),
+            "EnhancedBeliefs.LetterReligiousBookDestroyedText".Translate(parent.Named("BOOK"), Ideo.Named("IDEO")),
             Find.FactionManager.OfPlayer.ideos.IsPrimary(Ideo) ? LetterDefOf.NegativeEvent : LetterDefOf.NeutralEvent,
             new LookTargets(new TargetInfo[] { new(parent.PositionHeld, parent.MapHeld) }));
     }
@@ -258,7 +259,7 @@ internal sealed class CompReligiousBook : ThingComp
     public List<Pawn> ValidBurnerPawns()
     {
         List<Pawn> pawns = [];
-        var allPawns = parent.Map.mapPawns.FreeAdultColonistsSpawned;
+        var allPawns = parent.MapHeld.mapPawns.FreeAdultColonistsSpawned;
 
         foreach (var pawn in allPawns)
         {

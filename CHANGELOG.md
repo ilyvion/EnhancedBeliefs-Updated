@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Moved ideoligion opinion information into its own pawn tab.
+- The finishing a book job is now much improved; there's an effecter active while the book is being written, providing sound and visual effects and the book is now placed onto the lectern to be worked on.
 
 ## Fixed
 

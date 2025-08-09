@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <EffecterDef>
+        <defName>EB_CompleteBook</defName>
+        <children>
+            <li>
+                <subEffecterClass>SubEffecter_Sustainer</subEffecterClass>
+                <soundDef>EB_Interact_Write</soundDef>
+            </li>
+            <li>
+                <subEffecterClass>SubEffecter_SprayerContinuous</subEffecterClass>
+                <burstCount>2~4</burstCount>
+                <positionRadius>0.5</positionRadius>
+                <scale>1~1</scale>
+                <ticksBetweenMotes>500</ticksBetweenMotes>
+                <positionLerpFactor>1</positionLerpFactor>
+                <fleckDef>AirPuff</fleckDef>
+            </li>
+            <li>
+                <subEffecterClass>SubEffecter_SprayerContinuous</subEffecterClass>
+                <spawnLocType>OnTarget</spawnLocType>
+                <positionRadius>0.2</positionRadius>
+                <scale>0.5</scale>
+                <fleckUsesAngleForVelocity>false</fleckUsesAngleForVelocity>
+                <ticksBetweenMotes>60</ticksBetweenMotes>
+                <positionLerpFactor>1</positionLerpFactor>
+                <fleckDef>ResearchPage</fleckDef>
+                <speed>5</speed>
+            </li>
+        </children>
+    </EffecterDef>
+</Defs>

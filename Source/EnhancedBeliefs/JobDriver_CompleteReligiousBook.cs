@@ -20,6 +20,7 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
         yield return Toils_Haul.StartCarryThing(TargetIndex.A, putRemainderInQueue: false, subtractNumTakenFromJobCount: false, failIfStackCountLessThanJobCount: false, reserve: true, canTakeFromInventory: true);
         yield return GotoLectern();
         yield return StandAtLectern();
+        yield return Toils_Haul.PlaceHauledThingInCell(TargetIndex.B, null, false);
         yield return WriteBook();
     }
 
@@ -67,30 +68,36 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
     {
         var toil = ToilMaker.MakeToil("WriteBook");
 
-        toil.initAction = InitAction;
-        toil.tickAction = TickAction;
+        toil.initAction = InitWriteBookAction;
+        toil.tickAction = TickWriteBookAction;
 
-        toil.AddFinishAction(FinishAction);
-        toil.AddEndCondition(EndCondition);
+        toil.AddFinishAction(FinishWriteBookAction);
+        toil.AddEndCondition(EndWriteBookCondition);
 
         toil.AddFailCondition(() => !pawn.IsAdjacentToCardinalOrInside(Lectern));
         toil.handlingFacing = true;
+        _ = toil.WithEffect(EnhancedBeliefsDefOf.EB_CompleteBook, TargetIndex.A);
         _ = toil.WithProgressBar(TargetIndex.B, () => 1f - (Book.workLeft / Inspiration_ReligiousBook.InitialWork));
         toil.defaultCompleteMode = ToilCompleteMode.Never;
         toil.activeSkill = () => SkillDefOf.Artistic;
         return toil;
     }
 
-    private void InitAction()
+    private void InitWriteBookAction()
     {
         if (Book.ideo == null)
         {
             Book.ideo = pawn.Ideo;
         }
         Book.isOpen = true;
+
+        if (Book.debugCompleted)
+        {
+            Book.workLeft = 0f;
+        }
     }
 
-    private void TickAction()
+    private void TickWriteBookAction()
     {
 #if v1_5
         pawn.GainComfortFromCellIfPossible();
@@ -104,6 +111,10 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
         }
 
         Book.workLeft -= StatDefOf.GeneralLaborSpeed.Worker.IsDisabledFor(pawn) ? 1f : pawn.GetStatValue(StatDefOf.GeneralLaborSpeed);
+        if (Book.debugCompleted)
+        {
+            Book.workLeft = 0f;
+        }
 
         if (pawn.skills != null && !pawn.skills.GetSkill(SkillDefOf.Artistic).TotallyDisabled)
         {
@@ -111,7 +122,7 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
         }
     }
 
-    private void FinishAction()
+    private void FinishWriteBookAction()
     {
         if (Book != null)
         {
@@ -124,7 +135,7 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
         }
     }
 
-    private JobCondition EndCondition()
+    private JobCondition EndWriteBookCondition()
     {
         if (Book.workLeft <= 0f)
         {
@@ -143,7 +154,6 @@ internal sealed class JobDriver_CompleteReligiousBook : JobDriver
 
             newBook.GenerateBook(pawn, GenTicks.TicksAbs);
 
-            _ = Book.holdingOwner.TryDrop(Book, ThingPlaceMode.Direct, out _);
             Book.Destroy();
 
             return JobCondition.Succeeded;
