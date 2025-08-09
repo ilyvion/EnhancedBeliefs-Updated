@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add a null checks for when calculating a pawn's mood.
 - When Royalty was active, base-game patches were not applied due to accidental filename clobbering.
+- Bug with being able to access the correct defs.
 
 ## [0.2.0] - 2025-08-08
 

@@ -4,17 +4,17 @@ namespace EnhancedBeliefs;
 internal static class EnhancedBeliefsDefOf
 {
 #pragma warning disable CA2211, CS0649 // Ensured by DefOfAttribute
-    internal static MemeDef Supremacist;
-    internal static MemeDef Loyalist;
-    internal static MemeDef Guilty;
-    internal static MentalStateDef IdeoChange;
-    internal static ThingDef EB_UnfinishedIdeobook;
-    internal static ThingDef EB_Ideobook;
-    internal static JobDef EB_CompleteReligiousBook;
-    internal static JobDef EB_BurnReligiousBook;
-    internal static ThoughtDef EB_ReligiousBookDestroyed;
-    internal static HistoryEventDef EB_DestroyedReligiousBook;
-    internal static HistoryEventDef EB_BookDestroyed;
+    public static MemeDef Supremacist;
+    public static MemeDef Loyalist;
+    public static MemeDef Guilty;
+    public static MentalStateDef IdeoChange;
+    public static ThingDef EB_UnfinishedIdeobook;
+    public static ThingDef EB_Ideobook;
+    public static JobDef EB_CompleteReligiousBook;
+    public static JobDef EB_BurnReligiousBook;
+    public static ThoughtDef EB_ReligiousBookDestroyed;
+    public static HistoryEventDef EB_DestroyedReligiousBook;
+    public static HistoryEventDef EB_BookDestroyed;
 #pragma warning restore CA2211, CS0649
 
 #pragma warning disable CS8618 // Set by RimWorld
