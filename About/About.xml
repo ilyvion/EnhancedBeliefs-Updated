@@ -7,7 +7,7 @@
 		<li>1.5</li>
 		<li>1.6</li>
 	</supportedVersions>
-	<modVersion>0.2.0</modVersion>
+	<modVersion>0.3.0</modVersion>
 	<packageId>smartkar.enhancedbeliefs</packageId>
 	<modDependencies>
 		<li>
