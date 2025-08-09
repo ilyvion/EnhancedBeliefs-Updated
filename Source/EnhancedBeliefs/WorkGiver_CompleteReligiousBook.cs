@@ -2,6 +2,7 @@
 
 namespace EnhancedBeliefs;
 
+[HotSwappable]
 internal sealed class WorkGiver_CompleteReligiousBook : WorkGiver_Scanner
 {
     public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForDef(EnhancedBeliefsDefOf.EB_UnfinishedIdeobook);
@@ -9,57 +10,64 @@ internal sealed class WorkGiver_CompleteReligiousBook : WorkGiver_Scanner
 
     public override bool ShouldSkip(Pawn pawn, bool forced = false)
     {
-        if (pawn.Map == null || pawn.Position.IsValid || pawn.Ideo == null)
-        {
-            return true;
-        }
-
-        var precept_Role = pawn.Ideo.GetRole(pawn);
-
-        return precept_Role == null || precept_Role.def != PreceptDefOf.IdeoRole_Moralist || base.ShouldSkip(pawn, forced);
+        return pawn.Map == null || !pawn.Position.IsValid || pawn.Ideo == null || base.ShouldSkip(pawn, forced);
     }
 
-    public override Job? JobOnThing(Pawn pawn, Thing t, bool forced = false)
+    public override Job? JobOnThing(Pawn pawn, Thing thing, bool forced = false)
     {
-        if (pawn.Map == null || pawn.Position.IsValid || pawn.Ideo == null)
+        if (pawn.Map == null || !pawn.Position.IsValid || pawn.Ideo == null || thing is not UnfinishedReligiousBook book)
         {
             return null;
         }
 
-        var precept_Role = pawn.Ideo.GetRole(pawn);
+        var ideo = pawn.Ideo;
 
-        if (precept_Role == null || precept_Role.def != PreceptDefOf.IdeoRole_Moralist)
+        var requiredRole = ideo.RolesListForReading.FirstOrDefault(role => role.def == PreceptDefOf.IdeoRole_Moralist);
+        if (requiredRole == null)
         {
+            JobFailReason.Is("EnhancedBeliefs.IdeologyMissingRole".Translate(PreceptDefOf.IdeoRole_Moralist.Named("ROLE")));
             return null;
         }
 
-
-        if (t is not UnfinishedReligiousBook book
-            || (book.Creator != null && book.Creator != pawn)
-            || (book.ideo != pawn.Ideo && book.ideo != null))
+        var pawnIdeoRole = ideo.GetRole(pawn);
+        if (pawnIdeoRole == null || pawnIdeoRole.def != PreceptDefOf.IdeoRole_Moralist)
         {
+            JobFailReason.Is("EnhancedBeliefs.PawnMissingRequiredRole".Translate(pawn.Named("PAWN"), requiredRole.Label.Named("ROLE")));
+            return null;
+        }
+
+        if (book.Creator != null && book.Creator != pawn)
+        {
+            JobFailReason.Is("EnhancedBeliefs.PawnIsNotAuthor".Translate(pawn.Named("PAWN")));
+            return null;
+        }
+
+        if (book.ideo != pawn.Ideo && book.ideo != null)
+        {
+            JobFailReason.Is("EnhancedBeliefs.BookIsNotForPawnIdeoligion".Translate(pawn.Named("PAWN")));
             return null;
         }
 
         var lecterns = Find.CurrentMap.listerThings.ThingsOfDef(ThingDefOf.Lectern);
         lecterns.SortBy(thing => thing.Position.DistanceToSquared(pawn.Position));
-        Thing? lectern = null;
+        Thing? foundLectern = null;
 
-        foreach (var thing in lecterns)
+        foreach (var lectern in lecterns)
         {
-            if (pawn.CanReserveAndReach(thing, PathEndMode.Touch, pawn.NormalMaxDanger()))
+            if (pawn.CanReserveAndReach(lectern, PathEndMode.Touch, pawn.NormalMaxDanger()))
             {
-                lectern = thing;
+                foundLectern = lectern;
                 break;
             }
         }
 
-        if (lectern == null)
+        if (foundLectern == null)
         {
+            JobFailReason.Is("EnhancedBeliefs.NoFreeValidLecternFound".Translate());
             return null;
         }
 
-        var job = JobMaker.MakeJob(EnhancedBeliefsDefOf.EB_CompleteReligiousBook, book, lectern);
+        var job = JobMaker.MakeJob(EnhancedBeliefsDefOf.EB_CompleteReligiousBook, book, foundLectern);
         job.count = 1;
         return job;
     }

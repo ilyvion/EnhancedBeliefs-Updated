@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <EnhancedBeliefs.IdeologyMissingRole>Ideoligion does not have the required '{ROLE}' role.</EnhancedBeliefs.IdeologyMissingRole>
+    <EnhancedBeliefs.PawnMissingRequiredRole>{PAWN} does not have the required '{ROLE}' role.</EnhancedBeliefs.PawnMissingRequiredRole>
+    <EnhancedBeliefs.PawnIsNotAuthor>{PAWN} is not the author of the book.</EnhancedBeliefs.PawnIsNotAuthor>
+    <EnhancedBeliefs.BookIsNotForPawnIdeoligion>The book is not for {PAWN_possessive} ideology.</EnhancedBeliefs.BookIsNotForPawnIdeoligion>
+    <EnhancedBeliefs.NoFreeValidLecternFound>No available, accessible lectern found to do work on.</EnhancedBeliefs.NoFreeValidLecternFound>
+</LanguageData>

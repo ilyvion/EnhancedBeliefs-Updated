@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added job fail reasons to the 'complete religious book' work giver so you get an explanation why a given pawn can't do the work to complete the book.
+
 ### Changed
 
 - Moved ideoligion opinion information into its own pawn tab.
