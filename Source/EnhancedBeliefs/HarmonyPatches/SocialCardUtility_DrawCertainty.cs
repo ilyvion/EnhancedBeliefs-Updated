@@ -1,6 +1,7 @@
 namespace EnhancedBeliefs.HarmonyPatches;
 
 [HarmonyPatch(typeof(SocialCardUtility), nameof(SocialCardUtility.DrawPawnCertainty))]
+[HotSwappable]
 internal static class SocialCardUtility_DrawCertainty
 {
     private static Rect containerRect;
@@ -21,10 +22,29 @@ internal static class SocialCardUtility_DrawCertainty
         Rect barRect = new(num, rect.y + (rect.height / 2f) - 16f, rect.width - num - 26f, 32f);
         containerRect.xMax = barRect.xMax;
 
+        if (Mouse.IsOver(containerRect))
+        {
+            Widgets.DrawHighlight(containerRect);
+
+            var certaintyChange = (pawn.ideo.CertaintyChangePerDay >= 0f ? "+" : "") + pawn.ideo.CertaintyChangePerDay.ToStringPercent();
+
+            var tip = "EnhancedBeliefs.PawnCertaintyTooltip".Translate(pawn.Named("PAWN"), pawn.Ideo.Named("IDEO"), pawn.ideo.Certainty.ToStringPercent()) + "\n\n";
+            tip += "EnhancedBeliefs.CertainChangePerDay".Translate(certaintyChange) + "\n";
+
+            var comp = Current.Game.GetComponent<GameComponent_EnhancedBeliefs>();
+            var data = comp.PawnTracker.EnsurePawnHasIdeoTracker(pawn);
+            if (pawn.needs.mood.CurLevelPercentage < 0.8 && Find.TickManager.TicksGame - data.LastPositiveThoughtTick > 180000f)
+            {
+                tip += "EnhancedBeliefs.CertaintyLossFromInactivity".Translate(GameComponent_EnhancedBeliefs.CertaintyLossFromInactivity.Evaluate((Find.TickManager.TicksGame - data.LastPositiveThoughtTick) / 60000f).ToStringPercent()) + "\n";
+            }
+
+            TooltipHandler.TipRegion(containerRect, tip);
+        }
         if (Widgets.ButtonInvisible(containerRect))
         {
             IdeoUIUtility.OpenIdeoInfo(pawn.Ideo);
         }
+
 
         _ = Widgets.FillableBar(barRect.ContractedBy(4f), pawn.ideo.Certainty, SocialCardUtility.BarFullTexHor);
 

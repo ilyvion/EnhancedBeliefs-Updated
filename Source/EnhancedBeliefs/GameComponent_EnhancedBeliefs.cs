@@ -134,6 +134,7 @@ internal sealed partial class GameComponent_EnhancedBeliefs(Game game) : GameCom
     }
 }
 
+[HotSwappable]
 internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 {
     private Pawn pawn = pawn;
@@ -263,22 +264,20 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
     }
 
     // Rundown on the function above, for UI reasons
-    public float[] DetailedIdeoOpinion(Ideo ideo, bool noRelationship = false)
+    public DetailedIdeoOpinion DetailedIdeoOpinion(Ideo ideo, bool noRelationship = false)
     {
         if (!baseIdeoOpinions.ContainsKey(ideo))
         {
             _ = IdeoOpinion(ideo);
         }
 
-        if (ideo == Pawn.Ideo)
-        {
-            baseIdeoOpinions[ideo] = Pawn.ideo.Certainty * 100f;
-        }
-
-        // In cases where you want to avoid recursion
-        return noRelationship
-            ? [baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f]
-            : [baseIdeoOpinions[ideo] / 100f, PersonalIdeoOpinion(ideo) / 100f, IdeoOpinionFromRelationships(ideo) / 100f];
+        Log.Message($"DetailedIdeoOpinion: {ideo.name} - {Pawn.Name} - {Pawn.ideo.Certainty}");
+        return new DetailedIdeoOpinion
+        (
+             ideo == Pawn.Ideo ? Pawn.ideo.Certainty : baseIdeoOpinions[ideo] / 100f,
+             PersonalIdeoOpinion(ideo) / 100f,
+             noRelationship ? 0 : IdeoOpinionFromRelationships(ideo) / 100f
+        );
     }
 
     // Get pawn's basic opinion from hearing about ideos beliefs, based on their traits, relationships and current ideo
@@ -639,11 +638,11 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 
             // Move personal opinion into certainty i.e. base opinion, then zero it, since base opinions are fixed and personal beliefs are what is usually meant by certainty anyways
             var rundown = DetailedIdeoOpinion(ideo);
-            Pawn.ideo.Certainty = Mathf.Min(rundown[0], 0.2f) + rundown[1];
+            Pawn.ideo.Certainty = Mathf.Min(rundown.BaseOpinion, 0.2f) + rundown.PersonalOpinion;
             personalIdeoOpinions[ideo] = 0;
 
             // Keep current opinion of our old ideo by moving difference between new base and old base (certainty) into personal thoughts
-            AdjustPersonalOpinion(oldIdeo, certainty - DetailedIdeoOpinion(oldIdeo)[0]);
+            AdjustPersonalOpinion(oldIdeo, certainty - DetailedIdeoOpinion(oldIdeo).BaseOpinion);
 
             if (!oldIdeoContains)
             {
@@ -686,6 +685,13 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 
         return CheckConversion(newIdeo) == ConversionOutcome.Success;
     }
+}
+
+internal readonly struct DetailedIdeoOpinion(float baseOpinion, float personalOpinion, float relationshipOpinion)
+{
+    public readonly float BaseOpinion => baseOpinion;
+    public readonly float PersonalOpinion => personalOpinion;
+    public readonly float RelationshipOpinion => relationshipOpinion;
 }
 
 public enum ConversionOutcome : byte

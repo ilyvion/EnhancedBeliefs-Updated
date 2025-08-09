@@ -3,7 +3,7 @@
         <VersionPrefix>0.2.0</VersionPrefix>
 
         <!-- Intellisense doesn't work without specifying this explicitly -->
-        <RimWorldVersion Condition="'$(RimWorldVersion)'==''">1.5</RimWorldVersion>
+        <RimWorldVersion Condition="'$(RimWorldVersion)'==''">1.6</RimWorldVersion>
 
         <DefaultItemExcludes>$(DefaultItemExcludes);obj/**</DefaultItemExcludes>
         <BaseIntermediateOutputPath>obj/$(RimWorldVersion)</BaseIntermediateOutputPath>

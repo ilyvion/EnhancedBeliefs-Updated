@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Moved ideoligion opinion information into its own pawn tab.
+
 ## Fixed
 
 - Add a null checks for when calculating a pawn's mood.

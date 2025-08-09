@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <EnhancedBeliefs.TabOpinion>Opinions</EnhancedBeliefs.TabOpinion>
+    <EnhancedBeliefs.IdeologyOpinions>Ideology Opinions</EnhancedBeliefs.IdeologyOpinions>
+
+    <EnhancedBeliefs.PawnOpinionTooltip>{PAWN_nameDef}'s opinion of {IDEO_name}: {2}</EnhancedBeliefs.PawnOpinionTooltip>
+    <EnhancedBeliefs.PawnOptionToolTip.FromMemesAndPrecepts>From memes and precepts: {0}</EnhancedBeliefs.PawnOptionToolTip.FromMemesAndPrecepts>
+    <EnhancedBeliefs.PawnOptionToolTip.FromPersonalBeliefs>From personal beliefs: {0}</EnhancedBeliefs.PawnOptionToolTip.FromPersonalBeliefs>
+    <EnhancedBeliefs.PawnOptionToolTip.FromInterpersonalRelationships>From interpersonal relationships: {0}</EnhancedBeliefs.PawnOptionToolTip.FromInterpersonalRelationships>
+
+</LanguageData>
