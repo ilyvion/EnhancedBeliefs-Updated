@@ -12,10 +12,14 @@
         <defName>EB_Iconoclast</defName>
         <stateClass>EnhancedBeliefs.MentalState_Iconoclast</stateClass>
         <workerClass>EnhancedBeliefs.MentalStateWorker_Iconoclast</workerClass>
+        <label>iconoclast</label>
         <minTicksBeforeRecovery>40000</minTicksBeforeRecovery>
         <maxTicksBeforeRecovery>60000</maxTicksBeforeRecovery>
         <recoveryMtbDays>0.166</recoveryMtbDays>
-        <beginLetter>{0} is having a tantrum.\n\n[PAWN_pronoun] is going try and destroy religious books.</beginLetter>
+        <beginLetter>{0} had a mental break and is being an iconoclast.\n\n[PAWN_pronoun] is going try and burn religious books.</beginLetter>
+        <recoveryMessage>{0} is no longer being an iconoclast.</recoveryMessage>
+        <baseInspectLine>Mental state: Iconoclast</baseInspectLine>
+        <allowBeatfire>false</allowBeatfire>
     </MentalStateDef>
 
 </Defs>

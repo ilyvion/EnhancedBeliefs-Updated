@@ -79,6 +79,7 @@
 		<Publicize Include="Assembly-CSharp:RimWorld.Pawn_IdeoTracker.ideo" />
 		<Publicize Include="Assembly-CSharp:RimWorld.Pawn_IdeoTracker.pawn" />
 		<Publicize Include="Assembly-CSharp:RimWorld.TraitSet.pawn" />
+		<Publicize Include="Assembly-CSharp:RimWorld.NeedsCardUtility.DrawThoughtGroup" />
 		<Publicize Include="Assembly-CSharp:Verse.PawnGenerator.TryGenerateNewPawnInternal" />
 		<Publicize Include="Assembly-CSharp:Verse.Book.description" />
 		<Publicize Include="Assembly-CSharp:Verse.Book.descriptionFlavor" />

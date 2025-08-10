@@ -2,11 +2,10 @@
 
 namespace EnhancedBeliefs;
 
-// TODO: Replace with custom mental state and related job that finds books and lights them on fire.
-internal sealed class MentalState_Iconoclast : MentalState_Tantrum
+internal sealed class MentalState_Iconoclast : MentalState
 {
+    public BookIdeo? target;
     public int booksLeft = -1;
-    private static readonly List<Thing> tmpThings = [];
 
 #if v1_5
     public override void MentalStateTick()
@@ -34,9 +33,9 @@ internal sealed class MentalState_Iconoclast : MentalState_Tantrum
 
         // target is not null here because we checked it above; if target is null or destroyed and
         // TryFindNewTarget returns false, we already returned.
-        if (!target!.Spawned || !pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly))
+        if (!pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly))
         {
-            var thing = target;
+            var thing = target!;
 
             if (!TryFindNewTarget())
             {
@@ -44,7 +43,7 @@ internal sealed class MentalState_Iconoclast : MentalState_Tantrum
                 return;
             }
 
-            Messages.Message("MessageTargetedTantrumChangedTarget".Translate(pawn.LabelShort, thing.Label, target.Label, pawn.Named("PAWN"), thing.Named("OLDTARGET"), target.Named("TARGET")).AdjustedFor(pawn), pawn, MessageTypeDefOf.NegativeEvent);
+            Messages.Message("MessageTargetedTantrumChangedTarget".Translate(pawn.LabelShort, thing.Label, target!.Label, pawn.Named("PAWN"), thing.Named("OLDTARGET"), target.Named("TARGET")).AdjustedFor(pawn), pawn, MessageTypeDefOf.NegativeEvent);
         }
 
 #if v1_5
@@ -63,14 +62,41 @@ internal sealed class MentalState_Iconoclast : MentalState_Tantrum
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref booksLeft, "booksBurned");
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            // Attempt to load old value label first.
+            Scribe_Values.Look(ref booksLeft, "booksBurned");
+            if (booksLeft == 0)
+            {
+                Scribe_Values.Look(ref booksLeft, "booksLeft");
+            }
+        }
+        else
+        {
+            Scribe_Values.Look(ref booksLeft, "booksLeft");
+        }
+    }
+
+    public override RandomSocialMode SocialModeMax()
+    {
+        return RandomSocialMode.Off;
     }
 
     private bool TryFindNewTarget()
     {
-        TantrumMentalStateUtility.GetSmashableThingsNear(pawn, pawn.Position, tmpThings, t => t is BookIdeo);
-        var result = tmpThings.TryRandomElementByWeight(x => x.MarketValue * x.stackCount, out target);
-        tmpThings.Clear();
-        return result;
+#if !v1_5
+        target = GenClosest.ClosestThing_Global_Reachable(
+#else
+        target = GenClosest.ClosestThing_Global_Reachable_NewTemp(
+#endif
+                pawn.Position,
+                pawn.Map,
+                pawn.Map.listerThings.AllThings,
+                PathEndMode.Touch,
+                TraverseParms.For(pawn),
+                validator: t => t is BookIdeo,
+                canLookInHaulableSources: true) as BookIdeo;
+
+        return target != null;
     }
 }

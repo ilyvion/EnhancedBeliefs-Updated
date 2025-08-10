@@ -11,6 +11,7 @@ internal sealed class CompReligiousBook : ThingComp
     private static readonly Texture2D burnBookGizmoTexture = ContentFinder<Texture2D>.Get("UI/Gizmos/Gizmo_BookBurning");
     private int lastDamageTick = -1;
     private Pawn? lastDamageInsigator;
+    private Map? lastDamageMap;
 
     internal static readonly SimpleCurve CertaintyLossFromQualityCurve =
     [
@@ -121,7 +122,7 @@ internal sealed class CompReligiousBook : ThingComp
             "EnhancedBeliefs.LetterReligiousBookDestroyedLabel".Translate(),
             "EnhancedBeliefs.LetterReligiousBookDestroyedText".Translate(parent.Named("BOOK"), Ideo.Named("IDEO")),
             Find.FactionManager.OfPlayer.ideos.IsPrimary(Ideo) ? LetterDefOf.NegativeEvent : LetterDefOf.NeutralEvent,
-            new LookTargets(new TargetInfo[] { new(parent.PositionHeld, parent.MapHeld) }));
+            new LookTargets(new TargetInfo[] { new(parent.PositionHeld, lastDamageMap) }));
     }
 
     private void ApplyImpactToFollowers(Map previousMap)
@@ -143,7 +144,10 @@ internal sealed class CompReligiousBook : ThingComp
             }
 
             pawn.ideo.Certainty = Mathf.Clamp01(pawn.ideo.Certainty - CertaintyLossFromQualityCurve.Evaluate(quality));
-            pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(EnhancedBeliefsDefOf.EB_ReligiousBookDestroyed);
+
+            var thought = (Thought_ReligiousBookDestroyed)ThoughtMaker.MakeThought(EnhancedBeliefsDefOf.EB_ReligiousBookDestroyed);
+            thought.DestroyedBookIdeo = Ideo;
+            pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(thought);
             _ = comp.PawnTracker.EnsurePawnHasIdeoTracker(pawn).CheckConversion(excludeIdeos: [Ideo]);
         }
     }
@@ -155,6 +159,7 @@ internal sealed class CompReligiousBook : ThingComp
         lastDamageInsigator = dinfo.Instigator != null
             ? dinfo.Instigator as Pawn
             : null;
+        lastDamageMap = parent.MapHeld;
     }
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
@@ -240,7 +245,9 @@ internal sealed class CompReligiousBook : ThingComp
 
                 Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(text, delegate ()
                 {
-                    pawn.jobs.StartJob(JobMaker.MakeJob(EnhancedBeliefsDefOf.EB_BurnReligiousBook, parent));
+                    var job = JobMaker.MakeJob(EnhancedBeliefsDefOf.EB_PlaceAndBurnUntilDestroyed, parent);
+                    job.count = 1;
+                    pawn.jobs.jobQueue.EnqueueLast(job);
                 }));
             }, iconThing: pawn, iconColor: Color.white));
         }

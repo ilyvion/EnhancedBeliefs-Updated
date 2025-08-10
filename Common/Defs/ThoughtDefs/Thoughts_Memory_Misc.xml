@@ -3,6 +3,7 @@
 
     <ThoughtDef>
         <defName>EB_ReligiousBookDestroyed</defName>
+        <thoughtClass>EnhancedBeliefs.Thought_ReligiousBookDestroyed</thoughtClass>
         <showBubble>false</showBubble>
         <durationDays>3</durationDays>
         <stackLimit>2</stackLimit>
@@ -12,7 +13,7 @@
         <stages>
             <li>
                 <label>religious book destroyed</label>
-                <description>Our religious book has been destroyed. That is absolutely unexcusable.</description>
+                <description>Our religious book was destroyed. That is absolutely inexcusable.</description>
                 <baseMoodEffect>-15</baseMoodEffect>
             </li>
         </stages>

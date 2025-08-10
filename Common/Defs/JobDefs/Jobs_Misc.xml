@@ -2,9 +2,9 @@
 <Defs>
 
     <JobDef>
-        <defName>EB_BurnReligiousBook</defName>
-        <driverClass>EnhancedBeliefs.JobDriver_BurnReligiousBook</driverClass>
-        <reportString>burning TargetA.</reportString>
+        <defName>EB_PlaceAndBurnUntilDestroyed</defName>
+        <driverClass>EnhancedBeliefs.JobDriver_PlaceAndBurnUntilDestroyed</driverClass>
+        <reportString>placing TargetA on the ground to burn.</reportString>
     </JobDef>
 
     <JobDef>

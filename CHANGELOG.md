@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- When a religious book is destroyed, the mood debuff that is applied to followers of the affected ideology now has an icon showing which ideology’s book was lost. (NOTE: This is a temporary feature while we add proper book burning precepts in an upcoming version.)
+
+### Changed
+
+- The "Iconoclast" mental break has been completely reworked. Pawns experiencing this state will now actively seek out religious books and attempt to burn them, rather than simply destroying ones reachable outside containers directly. Book burning is now a visible, multi-step process: pawns will place the book on the ground and attempt to ignite it, making the act more immersive and dramatic.
+
 ## [0.3.1] - 2025-08-09
 
 ### Fixed
