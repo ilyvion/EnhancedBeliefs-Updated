@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-08-16
+
 ### Fixed
 
 - Improved error handling for pawn data scribing.
@@ -68,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Project layout changed to match how ilyvion works.
 
-[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.4.0..v0.4.1
 [0.4.0]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.3.1..v0.4.0
 [0.3.1]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.3.0..v0.3.1
 [0.3.0]: https://github.com/ilyvion/EnhancedBeliefs-Updated/compare/v0.2.0..v0.3.0
