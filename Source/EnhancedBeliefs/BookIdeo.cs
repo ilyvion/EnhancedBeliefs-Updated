@@ -43,7 +43,7 @@ internal sealed class BookIdeo : Book
         {
             if (Doer == null)
             {
-                Log.Error("Tried to set Ideo on a book without a ReadingOutcomeDoer_CertaintyChange. This should not happen.");
+                EnhancedBeliefsMod.Error("Tried to set Ideo on a book without a ReadingOutcomeDoer_CertaintyChange. This should not happen.");
                 return;
             }
             Doer.ideo = value;

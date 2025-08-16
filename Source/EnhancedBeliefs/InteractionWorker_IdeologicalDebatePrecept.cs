@@ -88,7 +88,7 @@ internal sealed class InteractionWorker_IdeologicalDebatePrecept : InteractionWo
         var precept = ideo.precepts.Select(p => p.def).FirstOrDefault(d => d.issue == topic);
         if (precept == null)
         {
-            Log.Error($"Could not find precept for {pawn} on topic {topic}. This should not happen.");
+            EnhancedBeliefsMod.Error($"Could not find precept for {pawn} on topic {topic}. This should not happen.");
         }
         return precept;
     }

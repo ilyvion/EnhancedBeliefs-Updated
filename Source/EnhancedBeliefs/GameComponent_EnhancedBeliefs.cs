@@ -291,15 +291,15 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 
         float opinion = 0;
 
-        if (Pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
+        if (pawnIdeo.HasMeme(EnhancedBeliefsDefOf.Supremacist))
         {
             opinion -= 20;
         }
-        else if (Pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Loyalist))
+        else if (pawnIdeo.HasMeme(EnhancedBeliefsDefOf.Loyalist))
         {
             opinion -= 10;
         }
-        else if (Pawn.Ideo.HasMeme(EnhancedBeliefsDefOf.Guilty))
+        else if (pawnIdeo.HasMeme(EnhancedBeliefsDefOf.Guilty))
         {
             opinion += 10;
         }

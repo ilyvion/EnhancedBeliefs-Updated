@@ -30,7 +30,7 @@ internal partial class GameComponent_EnhancedBeliefs
             {
                 if (data.Pawn != pawn)
                 {
-                    Log.Error($"Tried to set IdeoTrackerData for pawn {pawn} but the data is for pawn {data.Pawn}. This should not happen.");
+                    EnhancedBeliefsMod.Error($"Tried to set IdeoTrackerData for pawn {pawn} but the data is for pawn {data.Pawn}. This should not happen.");
                     return;
                 }
                 pawnIdeoTrackerData.AddOrUpdate(pawn, data);

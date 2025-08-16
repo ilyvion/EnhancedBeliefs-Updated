@@ -14,8 +14,6 @@
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>5</WarningLevel>
 
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
