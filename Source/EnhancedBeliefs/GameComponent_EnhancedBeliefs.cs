@@ -137,6 +137,8 @@ internal sealed partial class GameComponent_EnhancedBeliefs(Game game) : GameCom
 [HotSwappable]
 internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 {
+    public const float PawnOpinionFactor = 0.02f;
+
     private Pawn pawn = pawn;
     public Pawn Pawn => pawn;
     public void ForceNewPawn(Pawn newPawn)
@@ -435,8 +437,8 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         {
             // Up to +-2 opinion per pawn
             float pawnOpinion = Pawn.relations.OpinionOf(otherPawn);
-            opinion += pawnOpinion * 0.02f;
-            cachedRelationships[Pawn] = pawnOpinion;
+            opinion += pawnOpinion * PawnOpinionFactor;
+            cachedRelationships[otherPawn] = pawnOpinion;
         }
 
         cachedRelationshipIdeoOpinions[ideo] = opinion;

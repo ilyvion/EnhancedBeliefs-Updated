@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Opinions about other pawns wasn't correctly being taken into account when calculating ideoligion opinions.
+
 ## [0.4.1] - 2025-08-16
 
 ### Fixed
