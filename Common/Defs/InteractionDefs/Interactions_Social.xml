@@ -3,24 +3,24 @@
 
 	<InteractionDef>
 		<defName>EB_IdeologicalDebateMeme</defName>
-		<label>ideological debate</label>
+		<label>ideological debate over memes</label>
 		<workerClass>EnhancedBeliefs.InteractionWorker_IdeologicalDebateMeme</workerClass>
 		<symbolSource>InitiatorIdeo</symbolSource>
 		<logRulesInitiator>
 			<rulesStrings>
-				<li>r_logentry->[INITIATOR_nameDef] debated with [RECIPIENT_nameDef] about their ideoligion.</li>
+				<li>r_logentry->[INITIATOR_nameDef] debated memes with [RECIPIENT_nameDef] about their ideoligion.</li>
 			</rulesStrings>
 		</logRulesInitiator>
 	</InteractionDef>
 
 	<InteractionDef>
 		<defName>EB_IdeologicalDebatePrecept</defName>
-		<label>ideological debate</label>
+		<label>ideological debate over precepts</label>
 		<workerClass>EnhancedBeliefs.InteractionWorker_IdeologicalDebatePrecept</workerClass>
 		<symbolSource>InitiatorIdeo</symbolSource>
 		<logRulesInitiator>
 			<rulesStrings>
-				<li>r_logentry->[INITIATOR_nameDef] debated with [RECIPIENT_nameDef] about their ideoligion.</li>
+				<li>r_logentry->[INITIATOR_nameDef] debated precepts with [RECIPIENT_nameDef] about their ideoligion.</li>
 			</rulesStrings>
 		</logRulesInitiator>
 	</InteractionDef>

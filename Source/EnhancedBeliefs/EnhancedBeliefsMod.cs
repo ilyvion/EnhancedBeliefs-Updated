@@ -18,6 +18,20 @@ internal sealed class EnhancedBeliefsMod : Mod
         Message("Enhanced Beliefs (Updated) is now initialized!");
     }
 
+    public static Settings Settings => instance.GetSettings<Settings>();
+
+    public override void DoSettingsWindowContents(Rect inRect)
+    {
+        Settings.DoSettingsWindowContents(inRect);
+    }
+
+#if DEBUG
+    public override string SettingsCategory()
+    {
+        return Content.Name;
+    }
+#endif
+
     public static void Message(string msg)
     {
         Log.Message("[Enhanced Beliefs (Updated)] " + msg);
@@ -36,6 +50,16 @@ internal sealed class EnhancedBeliefsMod : Mod
     {
         Log.ResetMessageCount();
         DevMessage(message);
+    }
+
+    [Conditional("DEBUG")]
+    public static void DebugIf(bool condition, string message)
+    {
+        Log.ResetMessageCount();
+        if (condition)
+        {
+            DevMessage(message);
+        }
     }
 
     public static void Warning(string msg)

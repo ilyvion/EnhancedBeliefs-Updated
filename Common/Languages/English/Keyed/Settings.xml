@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <EnhancedBeliefs.DebugInteractionWorkers>DEV: Debug Interaction Workers</EnhancedBeliefs.DebugInteractionWorkers>
+    <EnhancedBeliefs.DebugInteractionWorkers.Tip>Enables debug logging for interaction workers when dev mode is active.</EnhancedBeliefs.DebugInteractionWorkers.Tip>
+</LanguageData>
