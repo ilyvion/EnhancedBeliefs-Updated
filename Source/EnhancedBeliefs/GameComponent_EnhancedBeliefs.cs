@@ -1,4 +1,6 @@
-﻿namespace EnhancedBeliefs;
+﻿using System.Text;
+
+namespace EnhancedBeliefs;
 
 #pragma warning disable CS9113 // Parameter is unread.
 internal sealed partial class GameComponent_EnhancedBeliefs(Game game) : GameComponent
@@ -237,7 +239,7 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         }
 
         var moodCertaintyOffset = GameComponent_EnhancedBeliefs.CertaintyOffsetFromThoughts.Evaluate(moodSum);
-        var relationshipMultiplier = 1 + (GameComponent_EnhancedBeliefs.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(Pawn.Ideo) / 0.02f) * Math.Sign(moodCertaintyOffset));
+        var relationshipMultiplier = 1 + (GameComponent_EnhancedBeliefs.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(Pawn.Ideo, out var _) / 0.02f) * Math.Sign(moodCertaintyOffset));
 
         CachedCertaintyChange += moodCertaintyOffset * relationshipMultiplier;
 
@@ -262,7 +264,10 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
             baseIdeoOpinions[ideo] = Pawn.ideo.Certainty * 100f;
         }
 
-        return Mathf.Clamp(baseIdeoOpinions[ideo] + PersonalIdeoOpinion(ideo) + IdeoOpinionFromRelationships(ideo), 0, 100) / 100f;
+        return Mathf.Clamp(
+            baseIdeoOpinions[ideo] +
+            PersonalIdeoOpinion(ideo, out var _) +
+            IdeoOpinionFromRelationships(ideo, out var _), 0, 100) / 100f;
     }
 
     // Rundown on the function above, for UI reasons
@@ -273,11 +278,18 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
             _ = IdeoOpinion(ideo);
         }
 
+        string? relationshipDevModeDetails = null;
+        var personalOpinion = PersonalIdeoOpinion(ideo, out var personalDevModeDetails) / 100f;
+        var relationshipOpinion = noRelationship ? 0 : IdeoOpinionFromRelationships(ideo, out relationshipDevModeDetails) / 100f;
         return new DetailedIdeoOpinion
         (
              ideo == Pawn.Ideo ? Pawn.ideo.Certainty : baseIdeoOpinions[ideo] / 100f,
-             PersonalIdeoOpinion(ideo) / 100f,
-             noRelationship ? 0 : IdeoOpinionFromRelationships(ideo) / 100f
+             personalOpinion,
+             relationshipOpinion,
+             personalDevModeDetails +
+                (relationshipDevModeDetails != null
+                    ? "\n" + relationshipDevModeDetails
+                    : "")
         );
     }
 
@@ -361,8 +373,41 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         return Mathf.Clamp(opinion + 30f, 0, 100);
     }
 
-    public float PersonalIdeoOpinion(Ideo ideo)
+    public float PersonalIdeoOpinion(Ideo ideo, out string? devDetails)
     {
+        if (Prefs.DevMode)
+        {
+            var devDetailsBuilder = new StringBuilder();
+            _ = devDetailsBuilder
+                .AppendLine($"Base opinion: {baseIdeoOpinions.GetValueOrDefault(ideo, DefaultIdeoOpinion(ideo))}")
+                .AppendLine($"Personal opinion: {personalIdeoOpinions.GetValueOrDefault(ideo, 0)}");
+            var relevantMemeCount = ideo.memes.Intersect(memeOpinions.Keys).Count();
+            _ = devDetailsBuilder
+                .AppendLine($"Meme opinions: {relevantMemeCount}");
+            foreach (var meme in ideo.memes)
+            {
+                if (memeOpinions.TryGetValue(meme, out var memeOpinion))
+                {
+                    _ = devDetailsBuilder.AppendLine($" - {meme.LabelCap}: {memeOpinion}");
+                }
+            }
+            var relevantPreceptCount = ideo.precepts.Select(p => p.def).Intersect(preceptOpinions.Keys).Count();
+            _ = devDetailsBuilder.AppendLine($"Precept opinions: {relevantPreceptCount}");
+            foreach (var preceptDef in ideo.precepts.Select(p => p.def))
+            {
+                if (preceptOpinions.TryGetValue(preceptDef, out var preceptOpinion))
+                {
+                    _ = devDetailsBuilder.AppendLine($" - {preceptDef.LabelCap}: {preceptOpinion}");
+                }
+            }
+
+            devDetails = devDetailsBuilder.ToString();
+        }
+        else
+        {
+            devDetails = null;
+        }
+
         if (!baseIdeoOpinions.TryGetValue(ideo, out var baseIdeoOpinion))
         {
             baseIdeoOpinion = DefaultIdeoOpinion(ideo);
@@ -406,11 +451,30 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         return (opinion + personalIdeoOpinions[ideo]) * OpinionMultiplier;
     }
 
-    public float IdeoOpinionFromRelationships(Ideo ideo)
+    public float IdeoOpinionFromRelationships(Ideo ideo, out string? devDetails)
     {
-        if (!cachedRelationshipIdeoOpinions.ContainsKey(ideo))
+        if (Prefs.DevMode)
         {
             CacheRelationshipIdeoOpinion(ideo);
+
+            var devDetailsBuilder = new StringBuilder();
+            _ = devDetailsBuilder
+                .AppendLine($"Relationship opinion: {cachedRelationshipIdeoOpinions.GetValueOrDefault(ideo, 0)}")
+                .AppendLine($"Relationships: {cachedRelationships.Count(p => p.Key.Ideo == ideo)}");
+            foreach (var kvp in cachedRelationships.Where(p => p.Key.Ideo == ideo))
+            {
+                _ = devDetailsBuilder.AppendLine($" - {kvp.Key.Name}: {kvp.Value * PawnOpinionFactor} (scaled from {kvp.Value})");
+            }
+            devDetails = devDetailsBuilder.ToString();
+        }
+        else
+        {
+            if (!cachedRelationshipIdeoOpinions.ContainsKey(ideo))
+            {
+                CacheRelationshipIdeoOpinion(ideo);
+            }
+
+            devDetails = null;
         }
 
         return cachedRelationshipIdeoOpinions[ideo] * OpinionMultiplier;
@@ -676,7 +740,7 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 
         EnhancedBeliefsUtilities.ShowCertaintyChangeMote(Pawn, Pawn.ideo.Certainty, newCertainty);
 
-        var ideoOpinion = PersonalIdeoOpinion(Pawn.Ideo);
+        var ideoOpinion = PersonalIdeoOpinion(Pawn.Ideo, out var _);
         if (ideoOpinion > 0)
         {
             AdjustPersonalOpinion(Pawn.Ideo, Math.Max(ideoOpinion * -0.01f, -0.25f * certaintyReduction));
@@ -688,11 +752,12 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
     }
 }
 
-internal readonly struct DetailedIdeoOpinion(float baseOpinion, float personalOpinion, float relationshipOpinion)
+internal readonly struct DetailedIdeoOpinion(float baseOpinion, float personalOpinion, float relationshipOpinion, string? devModeDetails = null)
 {
     public readonly float BaseOpinion => baseOpinion;
     public readonly float PersonalOpinion => personalOpinion;
     public readonly float RelationshipOpinion => relationshipOpinion;
+    public readonly string? DevModeDetails => devModeDetails;
 }
 
 public enum ConversionOutcome : byte

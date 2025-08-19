@@ -96,6 +96,12 @@ internal sealed class ITab_Opinion : ITab
                 tip += "EnhancedBeliefs.PawnOptionToolTip.FromPersonalBeliefs".Translate(opinionRundown.PersonalOpinion.ToStringPercent()) + "\n";
                 tip += "EnhancedBeliefs.PawnOptionToolTip.FromInterpersonalRelationships".Translate(opinionRundown.RelationshipOpinion.ToStringPercent()) + "\n";
 
+                if (Prefs.DevMode)
+                {
+                    tip += "\n== Dev Mode details ==";
+                    tip += "\n" + opinionRundown.DevModeDetails;
+                }
+
                 TooltipHandler.TipRegion(tooltipRect, tip);
             }
 

@@ -73,7 +73,7 @@ internal sealed class InteractionWorker_AdvancedConversionAttempt : InteractionW
         recipient.ideo.Certainty = Mathf.Clamp01(recipient.ideo.Certainty - (0.04f * conversionPower));
         recipientTracker.AdjustPersonalOpinion(initiatorIdeo, 0.08f * conversionPower);
 
-        var ideoOpinion = recipientTracker.PersonalIdeoOpinion(recipientIdeo);
+        var ideoOpinion = recipientTracker.PersonalIdeoOpinion(recipientIdeo, out var _);
         if (ideoOpinion > 0)
         {
             recipientTracker.AdjustPersonalOpinion(recipientIdeo, Math.Max(ideoOpinion * -0.01f, -0.02f * conversionPower));
