@@ -86,17 +86,18 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         }
     }
 
+    private readonly List<Thought> _tmpThoughts = [];
 #pragma warning disable IDE0060 // Remove unused parameter
     // TODO: Figure out why worldComp was even passed here
     public void CertaintyChangeRecache(GameComponent_EnhancedBeliefs worldComp)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         CachedCertaintyChange = 0;
-        List<Thought> thoughts = [];
-        Pawn.needs?.mood?.thoughts?.GetAllMoodThoughts(thoughts);
-        float moodSum = 0;
+        _tmpThoughts.Clear();
+        Pawn.needs?.mood?.thoughts?.GetAllMoodThoughts(_tmpThoughts);
 
-        foreach (var thought in thoughts)
+        float moodSum = 0;
+        foreach (var thought in _tmpThoughts)
         {
             if (thought.sourcePrecept != null || thought.def.Worker is ThoughtWorker_Precept)
             {
@@ -105,7 +106,7 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         }
 
         var moodCertaintyOffset = GameComponent_EnhancedBeliefs.CertaintyOffsetFromThoughts.Evaluate(moodSum);
-        var relationshipMultiplier = 1 + (GameComponent_EnhancedBeliefs.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(Pawn.Ideo, out var _) / 0.02f) * Math.Sign(moodCertaintyOffset));
+        var relationshipMultiplier = 1 + (GameComponent_EnhancedBeliefs.CertaintyMultiplierFromRelationships.Evaluate(IdeoOpinionFromRelationships(Pawn.Ideo, false, out var _) / 0.02f) * Math.Sign(moodCertaintyOffset));
 
         CachedCertaintyChange += moodCertaintyOffset * relationshipMultiplier;
 
@@ -133,7 +134,7 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         return Mathf.Clamp(
             baseIdeoOpinions[ideo] +
             PersonalIdeoOpinion(ideo, out var _) +
-            IdeoOpinionFromRelationships(ideo, out var _), 0, 100) / 100f;
+            IdeoOpinionFromRelationships(ideo, false, out var _), 0, 100) / 100f;
     }
 
     // Rundown on the function above, for UI reasons
@@ -146,7 +147,7 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
 
         string? relationshipDevModeDetails = null;
         var personalOpinion = PersonalIdeoOpinion(ideo, out var personalDevModeDetails) / 100f;
-        var relationshipOpinion = noRelationship ? 0 : IdeoOpinionFromRelationships(ideo, out relationshipDevModeDetails) / 100f;
+        var relationshipOpinion = noRelationship ? 0 : IdeoOpinionFromRelationships(ideo, true, out relationshipDevModeDetails) / 100f;
         return new DetailedIdeoOpinion
         (
              ideo == Pawn.Ideo ? Pawn.ideo.Certainty : baseIdeoOpinions[ideo] / 100f,
@@ -317,9 +318,9 @@ internal sealed class IdeoTrackerData(Pawn pawn) : IExposable
         return (opinion + personalIdeoOpinions[ideo]) * OpinionMultiplier;
     }
 
-    public float IdeoOpinionFromRelationships(Ideo ideo, out string? devDetails)
+    public float IdeoOpinionFromRelationships(Ideo ideo, bool includeDevDetails, out string? devDetails)
     {
-        if (Prefs.DevMode)
+        if (Prefs.DevMode && includeDevDetails)
         {
             CacheRelationshipIdeoOpinion(ideo);
 

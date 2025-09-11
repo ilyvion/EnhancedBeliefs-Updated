@@ -12,7 +12,7 @@ internal static class IdeoTracker_CertaintyChange
 
         var data = comp.PawnTracker.EnsurePawnHasIdeoTracker(pawn);
 
-        // 4 recaches per second should be enough
+        // 1 recache per rare tick should be enough
         if (data.CachedCertaintyChange == -9999f || pawn.IsHashIntervalTick(GenTicks.TickRareInterval))
         {
             data.CertaintyChangeRecache(comp);
