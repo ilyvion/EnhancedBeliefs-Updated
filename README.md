@@ -4,7 +4,7 @@
 
 This mod isn't very good in its current form as it has various bugs and balancing issues that cause colonists to have constant crises of faith as well as various other issues.
 
-I have been told by someone who's working on a continuation of this mod that they've sorted out most of these issues, but as far as I know, their version has not been published yet. I will add a link to it here once I know it's been published.
+dawud.weaver has made a spiritual successor called **[Enhanced Ideology](https://steamcommunity.com/sharedfiles/filedetails/?id=3793123680)** that you should use instead.
 
 I will leave the mod up on Steam and my GitHub repo up for the foreseeable future for anyone to grab the source code from.
 
